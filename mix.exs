@@ -36,9 +36,8 @@ defmodule GeoPostgis.Mixfile do
 
   defp deps do
     [
-      #{:geo, "~> 2.0", only: :dev},
+      {:geo, "~> 2.0"},
       {:postgrex, "~> 0.13"},
-      {:geo, path: "/Users/bryanjos/projects/bryanjos/geo"},
       {:ex_doc, "~> 0.14", only: :dev},
       {:ecto, "~> 2.1", optional: true, only: :test },
     ]
