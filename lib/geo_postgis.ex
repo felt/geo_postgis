@@ -144,6 +144,14 @@ defmodule Geo.PostGIS do
   defmacro st_difference(geometryA, geometryB) do
     quote do: fragment("ST_Difference(?,?)", unquote(geometryA), unquote(geometryB))
   end
+  
+  defmacro st_collect(geometryList) do
+    quote do: fragment("ST_Collect(?)", unquote(geometryList))
+  end
+  
+  defmacro st_collect(geometryA, geometryB) do
+    quote do: fragment("ST_Collect(?,?)", unquote(geometryA), unquote(geometryB))
+  end
 
   defmacro st_union(geometryList) do
     quote do: fragment("ST_Union(?)", unquote(geometryList))
