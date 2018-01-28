@@ -53,7 +53,6 @@ defmodule Geo.PostGIS.Extension do
     Keyword.get(opts, :decode_binary, :reference)
   end
 
-
   def matching(_) do
     [type: "geometry", type: "geography"]
   end
@@ -66,19 +65,20 @@ defmodule Geo.PostGIS.Extension do
     quote location: :keep do
       %x{} = geom when x in unquote(@geo_types) ->
         data = Geo.WKT.encode(geom)
-        [<<IO.iodata_length(data) :: int32>> | data]
+        [<<IO.iodata_length(data)::int32>> | data]
     end
   end
 
   def decode(:reference) do
     quote location: :keep do
-      <<len :: int32, wkb :: binary-size(len)>> ->
+      <<len::int32, wkb::binary-size(len)>> ->
         Geo.WKB.decode(wkb)
     end
   end
+
   def decode(:copy) do
     quote location: :keep do
-      <<len :: int32, wkb :: binary-size(len)>> ->
+      <<len::int32, wkb::binary-size(len)>> ->
         Geo.WKB.decode(:binary.copy(wkb))
     end
   end

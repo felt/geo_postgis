@@ -3,9 +3,11 @@
 
 defmodule Geo.Test.Helper do
   def opts do
-    [hostname: "localhost",
-     username: "postgres", database: "geo_postgrex_test",
-     types: Geo.PostGIS.PostgrexTypes
+    [
+      hostname: "localhost",
+      username: "postgres",
+      database: "geo_postgrex_test",
+      types: Geo.PostGIS.PostgrexTypes
     ]
   end
 end

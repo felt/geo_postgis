@@ -29,7 +29,7 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_DistanceSphere(?,?)", unquote(geometryA), unquote(geometryB))
   end
 
-  @doc"""
+  @doc """
   Please note that ST_Distance_Sphere has been deprecated as of Postgis 2.2.
   Postgis 2.1 is no longer supported on PostgreSQL >= 9.5.
   This macro is still in place to support users of PostgreSQL <= 9.4.x.
@@ -39,14 +39,21 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_dwithin(geometryA, geometryB, float) do
-    quote do: fragment("ST_DWithin(?,?,?)", unquote(geometryA), unquote(geometryB), unquote(float))
+    quote do:
+            fragment("ST_DWithin(?,?,?)", unquote(geometryA), unquote(geometryB), unquote(float))
   end
 
-  @doc"""
+  @doc """
   Casts the 2 geometries given to geographies in order to check for distance in meters
   """
   defmacro st_dwithin_in_meters(geometryA, geometryB, float) do
-    quote do: fragment("ST_DWithin(?::geography, ?::geography, ?)", unquote(geometryA), unquote(geometryB), unquote(float))
+    quote do:
+            fragment(
+              "ST_DWithin(?::geography, ?::geography, ?)",
+              unquote(geometryA),
+              unquote(geometryB),
+              unquote(float)
+            )
   end
 
   defmacro st_equals(geometryA, geometryB) do
@@ -90,7 +97,13 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_relate(geometryA, geometryB, intersectionPatternMatrix) do
-    quote do: fragment("ST_Relate(?,?,?)", unquote(geometryA), unquote(geometryB), unquote(intersectionPatternMatrix))
+    quote do:
+            fragment(
+              "ST_Relate(?,?,?)",
+              unquote(geometryA),
+              unquote(geometryB),
+              unquote(intersectionPatternMatrix)
+            )
   end
 
   defmacro st_relate(geometryA, geometryB) do
@@ -118,11 +131,11 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_buffer(geometry, double) do
-    quote do: fragment("ST_Buffer(?, ?)", unquote(geometry),  unquote(double))
+    quote do: fragment("ST_Buffer(?, ?)", unquote(geometry), unquote(double))
   end
 
   defmacro st_buffer(geometry, double, integer) do
-    quote do: fragment("ST_Buffer(?, ?, ?)", unquote(geometry),  unquote(double),  unquote(integer))
+    quote do: fragment("ST_Buffer(?, ?, ?)", unquote(geometry), unquote(double), unquote(integer))
   end
 
   defmacro st_convex_hull(geometry) do
@@ -144,11 +157,11 @@ defmodule Geo.PostGIS do
   defmacro st_difference(geometryA, geometryB) do
     quote do: fragment("ST_Difference(?,?)", unquote(geometryA), unquote(geometryB))
   end
-  
+
   defmacro st_collect(geometryList) do
     quote do: fragment("ST_Collect(?)", unquote(geometryList))
   end
-  
+
   defmacro st_collect(geometryA, geometryB) do
     quote do: fragment("ST_Collect(?,?)", unquote(geometryA), unquote(geometryB))
   end
@@ -352,5 +365,4 @@ defmodule Geo.PostGIS do
   defmacro st_bd_m_poly_from_text(wkt, srid) do
     quote do: fragment("ST_BdMPolyFromText(?, ?)", unquote(wkt), unquote(srid))
   end
-
 end
