@@ -4,15 +4,15 @@ defmodule GeoPostgis.Mixfile do
   def project do
     [
       app: :geo_postgis,
-      version: "1.0.0",
+      version: "1.1.0",
       elixir: "~> 1.4",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
       package: package(),
       name: "GeoPostGIS",
-      elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_paths: elixirc_paths(Mix.env()),
       source_url: source_url()
     ]
   end
@@ -26,7 +26,7 @@ defmodule GeoPostgis.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp description do
     """
@@ -39,16 +39,17 @@ defmodule GeoPostgis.Mixfile do
       {:geo, "~> 2.0"},
       {:postgrex, "~> 0.13"},
       {:ex_doc, "~> 0.14", only: :dev},
-      {:ecto, "~> 2.1", optional: true, only: :test },
+      {:ecto, "~> 2.1", optional: true, only: :test}
     ]
   end
 
   defp package do
-    [ # These are the default files included in the package
+    # These are the default files included in the package
+    [
       files: ["lib", "mix.exs", "README.md", "CHANGELOG.md"],
       maintainers: ["Bryan Joseph"],
       licenses: ["MIT"],
-      links: %{ "GitHub" => source_url() }
+      links: %{"GitHub" => source_url()}
     ]
   end
 end
