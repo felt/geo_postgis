@@ -5,7 +5,6 @@ if Code.ensure_loaded?(Ecto.Type) do
     """
 
     alias Geo.{
-      Config,
       Point,
       PointZ,
       PointM,
@@ -65,7 +64,7 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def cast(geom) when is_binary(geom) do
-      {:ok, geom |> Config.json_library().decode!() |> Geo.JSON.decode!()}
+      {:ok, geom |> Geo.PostGIS.Config.json_library().decode!() |> Geo.JSON.decode!()}
     end
 
     def cast(_), do: :error

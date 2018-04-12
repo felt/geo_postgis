@@ -17,6 +17,15 @@ def deps do
 end
 ```
 
+### Configuration
+
+```elixir
+# config.exs
+
+config :geo_postgis,
+  json_library: Poison # If you want to set your JSON module
+```
+
 ## Examples
 
 ### Postgrex Extension for the PostGIS data types, Geometry and Geography
