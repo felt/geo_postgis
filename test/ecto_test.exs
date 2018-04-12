@@ -15,7 +15,7 @@ defmodule Geo.Ecto.Test do
 
     schema "locations" do
       field(:name, :string)
-      field(:geom, Geo.MultiPolygon)
+      field(:geom, Geo.PostGIS.Geometry)
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Geo.Ecto.Test do
 
     schema "geographies" do
       field(:name, :string)
-      field(:geom, Geo.Point)
+      field(:geom, Geo.PostGIS.Geometry)
     end
   end
 
@@ -33,7 +33,7 @@ defmodule Geo.Ecto.Test do
 
     schema "location_multi" do
       field(:name, :string)
-      field(:geom, Geo.Geometry)
+      field(:geom, Geo.PostGIS.Geometry)
     end
   end
 
@@ -165,6 +165,8 @@ defmodule Geo.Ecto.Test do
     changeset =
       Ecto.Changeset.cast(result, %{title: "Hello", geom: json}, [:name, :geom])
       |> Ecto.Changeset.validate_required([:name, :geom])
+
+    IO.inspect(changeset)
 
     assert changeset.changes == %{geom: %Geo.Point{coordinates: {31, -90}, srid: 4326}}
   end
