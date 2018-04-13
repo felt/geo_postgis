@@ -70,7 +70,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "query multipoint" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
 
     Repo.insert(%Location{name: "hello", geom: geom})
     query = from(location in Location, limit: 5, select: location)
@@ -80,7 +80,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "query area" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
 
     Repo.insert(%Location{name: "hello", geom: geom})
 
@@ -91,7 +91,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "query transform" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
 
     Repo.insert(%Location{name: "hello", geom: geom})
 
@@ -102,7 +102,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "query distance" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
 
     Repo.insert(%Location{name: "hello", geom: geom})
 
@@ -113,7 +113,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "query sphere distance" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
 
     Repo.insert(%Location{name: "hello", geom: geom})
 
@@ -124,7 +124,7 @@ defmodule Geo.Ecto.Test do
   end
 
   test "example" do
-    geom = Geo.WKB.decode(@multipoint_wkb)
+    geom = Geo.WKB.decode!(@multipoint_wkb)
     Repo.insert(%Location{name: "hello", geom: geom})
 
     defmodule Example do
@@ -166,8 +166,6 @@ defmodule Geo.Ecto.Test do
       Ecto.Changeset.cast(result, %{title: "Hello", geom: json}, [:name, :geom])
       |> Ecto.Changeset.validate_required([:name, :geom])
 
-    IO.inspect(changeset)
-
     assert changeset.changes == %{geom: %Geo.Point{coordinates: {31, -90}, srid: 4326}}
   end
 
@@ -182,7 +180,7 @@ defmodule Geo.Ecto.Test do
 
     json = %{
       "type" => "Point",
-      "crs" => %{"type" => "name", "properties" => %{"name" => "EPSG4326"}},
+      "crs" => %{"type" => "name", "properties" => %{"name" => "EPSG:4326"}},
       "coordinates" => [31, -90]
     }
 
