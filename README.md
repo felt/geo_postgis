@@ -13,15 +13,16 @@ by adding `geo_postgis` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:geo_postgis, "~> 1.0"}]
+  [{:geo_postgis, "~> 2.0"}]
 end
 ```
 
-### Configuration
+### Optional Configuration
 
 ```elixir
-# config.exs
+When a binary is passed to `Geo.PostGIS.Geometry.cast/1` implementation of `Ecto.Type.cast/1`, it is assumed to be a GeoJSON string. When this happens, geo_postgis will use Poison, by default, to convert the binary to a map and then convert that map to on of the Geo structs. If in these cases you would like to use a different JSON parser, you can set the config below.
 
+# config.exs
 config :geo_postgis,
   json_library: Poison # If you want to set your JSON module
 ```
