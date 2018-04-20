@@ -24,6 +24,18 @@ defmodule Geo.PostGIS do
   defmacro st_distance(geometryA, geometryB) do
     quote do: fragment("ST_Distance(?,?)", unquote(geometryA), unquote(geometryB))
   end
+   
+  @doc """
+  Casts the 2 geometries given to geographies in order to return distance in meters
+  """
+  defmacro st_distance_in_meters(geometryA, geometryB) do
+    quote do:
+            fragment(
+              "ST_DWithin(?::geography, ?::geography)",
+              unquote(geometryA),
+              unquote(geometryB)
+            )
+  end
 
   defmacro st_distancesphere(geometryA, geometryB) do
     quote do: fragment("ST_DistanceSphere(?,?)", unquote(geometryA), unquote(geometryB))
