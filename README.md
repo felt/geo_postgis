@@ -1,6 +1,7 @@
 # GeoPostGIS
 
 [![Build Status](https://travis-ci.org/bryanjos/geo_postgis.svg?branch=master)](https://travis-ci.org/bryanjos/geo_postgis)
+[![Hex.pm](https://img.shields.io/hexpm/v/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
 
 Postgrex extension for the PostGIS data types. Uses the [geo](https://github.com/bryanjos/geo) library
 
