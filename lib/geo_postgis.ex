@@ -31,7 +31,7 @@ defmodule Geo.PostGIS do
   defmacro st_distance_in_meters(geometryA, geometryB) do
     quote do:
             fragment(
-              "ST_DWithin(?::geography, ?::geography)",
+              "ST_Distance(?::geography, ?::geography)",
               unquote(geometryA),
               unquote(geometryB)
             )
