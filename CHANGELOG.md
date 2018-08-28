@@ -5,11 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2018-08-28
+
+### Added
+
+- [Geo.PostGIS.st_point/2](https://github.com/bryanjos/geo_postgis/pull/6)
+
+### Fixed
+
+- [st_distance_in_meters/2](https://github.com/bryanjos/geo_postgis/pull/8)
+
 ## [2.0.0] - 2018-04-14
 
 ### Changed
 
-* Use `Geo.PostGIS.Geometry` when defining structs instead of `Geo.Geometry`
+- Use `Geo.PostGIS.Geometry` when defining structs instead of `Geo.Geometry`
 
 ```elixir
   #instead of
@@ -29,10 +39,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-* [Add ST_Collect()](https://github.com/bryanjos/geo_postgis/pull/3)
+- [Add ST_Collect()](https://github.com/bryanjos/geo_postgis/pull/3)
 
 ## [1.0.0] - 2017-07-15
 
 ### Added
 
-* PostGIS extension for Postgrex
+- PostGIS extension for Postgrex

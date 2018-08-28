@@ -4,7 +4,7 @@ defmodule GeoPostgis.Mixfile do
   def project do
     [
       app: :geo_postgis,
-      version: "2.0.0",
+      version: "2.1.0",
       elixir: "~> 1.6",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
