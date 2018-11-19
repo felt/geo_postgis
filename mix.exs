@@ -39,7 +39,7 @@ defmodule GeoPostgis.Mixfile do
       {:geo, "~> 3.0"},
       {:postgrex, "~> 0.13"},
       {:ex_doc, "~> 0.18.4", only: :dev},
-      {:ecto, "~> 2.1", optional: true, only: :test},
+      {:ecto, "~> 3.0", optional: true, only: :test},
       {:poison, "~> 2.2 or ~> 3.0", optional: true},
       {:jason, "~> 1.0", optional: true}
     ]
