@@ -5,7 +5,6 @@ config :geo_postgis, Geo.Ecto.Test.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  adapter: Ecto.Adapters.Postgres,
   types: Geo.PostGIS.PostgrexTypes
 
 # Print only warnings and errors during test

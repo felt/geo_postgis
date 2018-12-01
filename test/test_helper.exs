@@ -1,5 +1,4 @@
-:ok = Application.ensure_started(:poolboy)
-:ok = Application.ensure_started(:ecto)
+{:ok, _} = Application.ensure_all_started(:ecto_sql)
 
 defmodule Geo.Test.Helper do
   def opts do
