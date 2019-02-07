@@ -48,6 +48,18 @@ defmodule Geo.PostGIS.Test do
     assert(result.rows == [[42, "test", geo]])
   end
 
+  test "insert pointz", context do
+    pid = context[:pid]
+    geo = %Geo.PointZ{coordinates: {30, -90, 70}, srid: 4326}
+
+    {:ok, _} =
+      Postgrex.query(pid, "CREATE TABLE point_test (id int, geom geometry(PointZ, 4326))", [])
+
+    {:ok, _} = Postgrex.query(pid, "INSERT INTO point_test VALUES ($1, $2)", [42, geo])
+    {:ok, result} = Postgrex.query(pid, "SELECT * FROM point_test", [])
+    assert(result.rows == [[42, geo]])
+  end
+
   test "insert linestring", context do
     pid = context[:pid]
     geo = %Geo.LineString{srid: 4326, coordinates: [{30, 10}, {10, 30}, {40, 40}]}
