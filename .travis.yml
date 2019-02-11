@@ -15,3 +15,13 @@ services:
 before_script:
   - psql -c 'create database geo_postgrex_test;' -U postgres
   - psql -c 'create extension postgis;' -U postgres -d geo_postgrex_test
+script:
+  - mix test
+before_deploy:
+  - mix compile
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: mix hex.publish --yes
+  on:
+    tags: true
