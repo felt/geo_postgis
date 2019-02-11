@@ -19,6 +19,7 @@ if Code.ensure_loaded?(Ecto.Type) do
 
     @types [
       "Point",
+      "PointZ",
       "LineString",
       "Polygon",
       "MultiPoint",
