@@ -55,7 +55,7 @@ Postgrex.Connection.query(pid, "SELECT * FROM point_test")
 rows: [{42, %Geo.Point{coordinates: {30.0, -90.0}, srid: 4326 }}]}}
 ```
 
-### Use with Ecto Referencing [the documentation](https://hexdocs.pm/ecto/Ecto.Adapters.Postgres.html#module-extensions):
+### Use with Ecto Referencing [the documentation](https://hexdocs.pm/ecto_sql/Ecto.Adapters.Postgres.html#module-extensions):
 
 ```elixir
 #If using with Ecto, you may want something like thing instead
