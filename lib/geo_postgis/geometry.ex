@@ -10,21 +10,33 @@ if Code.ensure_loaded?(Ecto.Type) do
       PointM,
       PointZM,
       LineString,
+      LineStringZ,
       Polygon,
+      PolygonZ,
       MultiPoint,
+      MultiPointZ,
       MultiLineString,
+      MultiLineStringZ,
       MultiPolygon,
+      MultiPolygonZ,
       GeometryCollection
     }
 
     @types [
       "Point",
       "PointZ",
+      "PointM",
+      "PointZM",
       "LineString",
+      "LineStringZ",
       "Polygon",
+      "PolygonZ",
       "MultiPoint",
+      "MultiPointZ",
       "MultiLineString",
-      "MultiPolygon"
+      "MultiLineStringZ",
+      "MultiPolygon",
+      "MultiPolygonZ"
     ]
 
     @geometries [
@@ -33,10 +45,15 @@ if Code.ensure_loaded?(Ecto.Type) do
       PointM,
       PointZM,
       LineString,
+      LineStringZ,
       Polygon,
+      PolygonZ,
       MultiPoint,
+      MultiPointZ,
       MultiLineString,
+      MultiLineStringZ,
       MultiPolygon,
+      MultiPolygonZ,
       GeometryCollection
     ]
 

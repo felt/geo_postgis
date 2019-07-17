@@ -39,14 +39,19 @@ defmodule Geo.PostGIS.Extension do
   @geo_types [
     Geo.GeometryCollection,
     Geo.LineString,
+    Geo.LineStringZ,
     Geo.MultiLineString,
+    Geo.MultiLineStringZ,
     Geo.MultiPoint,
+    Geo.MultiPointZ,
     Geo.MultiPolygon,
+    Geo.MultiPolygonZ,
     Geo.Point,
     Geo.PointZ,
     Geo.PointM,
     Geo.PointZM,
-    Geo.Polygon
+    Geo.Polygon,
+    Geo.PolygonZ
   ]
 
   def init(opts) do
