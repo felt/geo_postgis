@@ -4,7 +4,7 @@ defmodule GeoPostgis.Mixfile do
   def project do
     [
       app: :geo_postgis,
-      version: "3.1.0",
+      version: "3.2.0",
       elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -36,7 +36,7 @@ defmodule GeoPostgis.Mixfile do
 
   defp deps do
     [
-      {:geo, "~> 3.1"},
+      {:geo, "~> 3.2"},
       {:postgrex, "~> 0.14"},
       {:ex_doc, "~> 0.21.0", only: :dev},
       {:ecto_sql, "~> 3.0", optional: true, only: :test},
