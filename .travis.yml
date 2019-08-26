@@ -1,17 +1,20 @@
-dist: trusty
-sudo: false
+sudo: required
+dist: xenial
 language: elixir
 elixir:
   - 1.9
 otp_release:
   - 22.0
-addons:
-  postgresql: '9.6'
-  apt:
-    packages:
-      - postgresql-9.6-postgis-2.3
-services:
-  - postgresql
+cache:
+  directories:
+    - _build
+    - deps
+before_install:
+  - sudo apt-get update
+  - sudo apt-get --yes remove postgresql\*
+  - sudo apt-get install -y postgresql-11 postgresql-client-11
+  - sudo cp /etc/postgresql/{9.6,11}/main/pg_hba.conf
+  - sudo service postgresql restart 11
 before_script:
   - psql -c 'create database geo_postgrex_test;' -U postgres
   - psql -c 'create extension postgis;' -U postgres -d geo_postgrex_test
