@@ -18,6 +18,7 @@ before_install:
 before_script:
   - psql -c 'create database geo_postgrex_test;' -U postgres
   - psql -c 'create extension postgis;' -U postgres -d geo_postgrex_test
+  - psql -c 'CREATE ROLE travis SUPERUSER LOGIN CREATEDB;' -U postgres
 script:
   - mix test
 before_deploy:
