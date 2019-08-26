@@ -2,9 +2,9 @@ dist: trusty
 sudo: false
 language: elixir
 elixir:
-  - 1.7
+  - 1.9
 otp_release:
-  - 21.1
+  - 22.0
 addons:
   postgresql: '9.6'
   apt:
