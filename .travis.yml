@@ -15,6 +15,7 @@ services:
 before_script:
   - psql -c 'create database geo_postgrex_test;' -U postgres
   - psql -c 'create extension postgis;' -U postgres -d geo_postgrex_test
+  - psql -d postgres -c "alter extension postgis update to "2.4";
 script:
   - mix test
 before_deploy:
