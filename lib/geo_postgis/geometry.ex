@@ -57,7 +57,11 @@ if Code.ensure_loaded?(Ecto.Type) do
       GeometryCollection
     ]
 
-    @behaviour Ecto.Type
+    if macro_exported?(Ecto.Type, :__using__, 1) do
+      use Ecto.Type
+    else
+      @behaviour Ecto.Type
+    end
 
     def type, do: :geometry
 
