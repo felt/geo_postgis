@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.1] - 2019-12-13
+
+### Fixed
+
+- [Add new callback functions required by ecto 3](https://github.com/bryanjos/geo_postgis/pull/55)
+- [Ecto 3.2+ requires callbacks for custom types](https://github.com/bryanjos/geo_postgis/pull/59)
+
 ## [3.3.0] - 2019-08-26
 
 ### Updated
