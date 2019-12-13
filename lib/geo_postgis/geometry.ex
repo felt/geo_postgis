@@ -90,5 +90,9 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def cast(_), do: :error
+
+    def embed_as(_), do: :self
+
+    def equal?(a, b), do: a == b
   end
 end
