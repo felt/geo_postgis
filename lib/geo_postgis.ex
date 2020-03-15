@@ -381,4 +381,8 @@ defmodule Geo.PostGIS do
   defmacro st_bd_m_poly_from_text(wkt, srid) do
     quote do: fragment("ST_BdMPolyFromText(?, ?)", unquote(wkt), unquote(srid))
   end
+
+  defmacro st_flip_coordinates(geometryA) do 
+    quote do: fragment("ST_FlipCoordinates(?)", unquote(geometryA))
+  end
 end
