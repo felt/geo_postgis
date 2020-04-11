@@ -71,6 +71,7 @@ config :thanks, Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
+  adapter: Ecto.Adapters.Postgres,
   types: MyApp.PostgresTypes
 
 
