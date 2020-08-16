@@ -18,6 +18,8 @@ def deps do
 end
 ```
 
+Make sure PostGIS extension to your database is installed. More information [here](https://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS24UbuntuPGSQL10Apt#Install)
+
 ### Optional Configuration
 
 ```elixir
@@ -25,7 +27,7 @@ end
 
 # config.exs
 config :geo_postgis,
-  json_library: Poison # If you want to set your JSON module
+  json_library: Jason # If you want to set your JSON module
 ```
 
 ## Examples
@@ -61,7 +63,7 @@ rows: [{42, %Geo.Point{coordinates: {30.0, -90.0}, srid: 4326 }}]}}
 #If using with Ecto, you may want something like thing instead
 Postgrex.Types.define(MyApp.PostgresTypes,
               [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
-              json: Poison)
+              json: Jason)
 
 #Add extensions to your repo config
 config :thanks, Repo,
@@ -113,6 +115,10 @@ defmodule Repo.Migrations.AdvancedInit do
     # Add a field `lng_lat_point` with type `geometry(Point,4326)`.
     # This can store a "standard GPS" (epsg4326) coordinate pair {longitude,latitude}.
     execute("SELECT AddGeometryColumn ('test','lng_lat_point',4326,'POINT',2);")
+
+    # Once a GIS data table exceeds a few thousand rows, you will want to build an index to speed up spatial searches of the data
+    # Syntax - CREATE INDEX [indexname] ON [tablename] USING GIST ( [geometryfield] );
+    execute("CREATE INDEX test_geom_idx ON test USING GIST (lng_lat_point);")
   end
 
   def down do
@@ -145,7 +151,9 @@ defmodule Example do
   import Geo.PostGIS
 
   def example_query(geom) do
-    from location in Location, limit: 5, select: st_distance(location.geom, ^geom)
+    query = from location in Location, limit: 5, select: st_distance(location.geom, ^geom)
+    query
+    |> Repo.one
   end
 
 end
