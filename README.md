@@ -14,7 +14,7 @@ by adding `geo_postgis` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:geo_postgis, "~> 3.1"}]
+  [{:geo_postgis, "~> 3.3"}]
 end
 ```
 
