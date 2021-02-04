@@ -24,7 +24,7 @@ defmodule Geo.PostGIS do
   defmacro st_distance(geometryA, geometryB) do
     quote do: fragment("ST_Distance(?,?)", unquote(geometryA), unquote(geometryB))
   end
-   
+
   @doc """
   Casts the 2 geometries given to geographies in order to return distance in meters
   """
@@ -382,7 +382,21 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_BdMPolyFromText(?, ?)", unquote(wkt), unquote(srid))
   end
 
-  defmacro st_flip_coordinates(geometryA) do 
+  defmacro st_flip_coordinates(geometryA) do
     quote do: fragment("ST_FlipCoordinates(?)", unquote(geometryA))
+  end
+
+  defmacro st_generate_points(geometryA, npoints) do
+    quote do: fragment("ST_GeneratePoints(?,?)", unquote(geometryA), unquote(npoints))
+  end
+
+  defmacro st_generate_points(geometryA, npoints, seed) do
+    quote do:
+            fragment(
+              "ST_GeneratePoints(?,?,?)",
+              unquote(geometryA),
+              unquote(npoints),
+              unquote(seed)
+            )
   end
 end
