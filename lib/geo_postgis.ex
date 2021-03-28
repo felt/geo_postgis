@@ -1,11 +1,12 @@
 defmodule Geo.PostGIS do
   @moduledoc """
-    Postgis functions that can used in ecto queries
-    [PostGIS Function Documentation](http://postgis.net/docs/manual-1.3/ch06.html)
+  PostGIS functions that can used in ecto queries
+  [PostGIS Function Documentation](http://postgis.net/docs/manual-1.3/ch06.html).
 
-    Currently only the OpenGIS functions are implemented
+  Currently only the OpenGIS functions are implemented.
 
-    ex.
+  ## Examples
+
       defmodule Example do
         import Ecto.Query
         import Geo.PostGIS
@@ -13,8 +14,8 @@ defmodule Geo.PostGIS do
         def example_query(geom) do
           from location in Location, limit: 5, select: st_distance(location.geom, ^geom)
         end
-
       end
+
   """
 
   defmacro st_transform(wkt, srid) do
@@ -24,9 +25,9 @@ defmodule Geo.PostGIS do
   defmacro st_distance(geometryA, geometryB) do
     quote do: fragment("ST_Distance(?,?)", unquote(geometryA), unquote(geometryB))
   end
-   
+
   @doc """
-  Casts the 2 geometries given to geographies in order to return distance in meters
+  Casts the 2 geometries given to geographies in order to return distance in meters.
   """
   defmacro st_distance_in_meters(geometryA, geometryB) do
     quote do:
@@ -56,7 +57,7 @@ defmodule Geo.PostGIS do
   end
 
   @doc """
-  Casts the 2 geometries given to geographies in order to check for distance in meters
+  Casts the 2 geometries given to geographies in order to check for distance in meters.
   """
   defmacro st_dwithin_in_meters(geometryA, geometryB, float) do
     quote do:
@@ -382,7 +383,7 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_BdMPolyFromText(?, ?)", unquote(wkt), unquote(srid))
   end
 
-  defmacro st_flip_coordinates(geometryA) do 
+  defmacro st_flip_coordinates(geometryA) do
     quote do: fragment("ST_FlipCoordinates(?)", unquote(geometryA))
   end
 end
