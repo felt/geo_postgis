@@ -1,20 +1,24 @@
 # GeoPostGIS
 
 [![Build Status](https://travis-ci.org/bryanjos/geo_postgis.svg?branch=master)](https://travis-ci.org/bryanjos/geo_postgis)
-[![Hex.pm](https://img.shields.io/hexpm/v/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
+[![Module Version](https://img.shields.io/hexpm/v/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/geo_postgis/)
+[![Total Download](https://img.shields.io/hexpm/dt/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
+[![License](https://img.shields.io/hexpm/l/geo_postgis.svg)](https://github.com/bryanjos/geo_postgis/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/bryanjos/geo_postgis.svg)](https://github.com/bryanjos/geo_postgis/commits/master)
 
 Postgrex extension for the PostGIS data types. Uses the [geo](https://github.com/bryanjos/geo) library
 
-[Documentation](http://hexdocs.pm/geo_postgis)
-
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `geo_postgis` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `:geo_postgis` to your list of
+dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:geo_postgis, "~> 3.1"}]
+  [
+    {:geo_postgis, "~> 3.1"}
+  ]
 end
 ```
 
@@ -23,7 +27,11 @@ Make sure PostGIS extension to your database is installed. More information [her
 ### Optional Configuration
 
 ```elixir
-# When a binary is passed to `Geo.PostGIS.Geometry.cast/1` implementation of `Ecto.Type.cast/1`, it is assumed to be a GeoJSON string. When this happens, geo_postgis will use Poison, by default, to convert the binary to a map and then convert that map to one of the Geo structs. If in these cases you would like to use a different JSON parser, you can set the config below.
+# When a binary is passed to `Geo.PostGIS.Geometry.cast/1` implementation of
+# `Ecto.Type.cast/1`, it is assumed to be a GeoJSON string. When this happens,
+# geo_postgis will use Poison, by default, to convert the binary to a map and
+# then convert that map to one of the Geo structs. If in these cases you would
+# like to use a different JSON parser, you can set the config below.
 
 # config.exs
 config :geo_postgis,
@@ -32,7 +40,7 @@ config :geo_postgis,
 
 ## Examples
 
-### Postgrex Extension for the PostGIS data types, Geometry and Geography
+Postgrex Extension for the PostGIS data types, Geometry and Geography:
 
 ```elixir
 Postgrex.Types.define(MyApp.PostgresTypes, [Geo.PostGIS.Extension], [])
@@ -57,7 +65,7 @@ Postgrex.Connection.query(pid, "SELECT * FROM point_test")
 rows: [{42, %Geo.Point{coordinates: {30.0, -90.0}, srid: 4326 }}]}}
 ```
 
-### Use with Ecto Referencing [the documentation](https://hexdocs.pm/ecto_sql/Ecto.Adapters.Postgres.html#module-extensions):
+Use with [Ecto](https://hexdocs.pm/ecto_sql/Ecto.Adapters.Postgres.html#module-extensions):
 
 ```elixir
 #If using with Ecto, you may want something like thing instead
@@ -102,7 +110,7 @@ defmodule Repo.Migrations.Init do
 end
 ```
 
-### Ecto migrations can also use more elaborate [Postgis GIS Objects](http://postgis.net/docs/using_postgis_dbmanagement.html#RefObject). These types are useful for enforcing constraints on {Lng,Lat} (order matters), or ensuring that a particular projection/coordinate system/format is used.
+Ecto migrations can also use more elaborate [PostGIS GIS Objects](http://postgis.net/docs/using_postgis_dbmanagement.html#RefObject). These types are useful for enforcing constraints on `{Lng,Lat}` (order matters), or ensuring that a particular projection/coordinate system/format is used.
 
 ```elixir
 defmodule Repo.Migrations.AdvancedInit do
@@ -127,7 +135,7 @@ defmodule Repo.Migrations.AdvancedInit do
 end
 ```
 
-Be sure to enable the Postgis extension if you haven't already done so:
+Be sure to enable the PostGIS extension if you haven't already done so:
 
 ```elixir
 defmodule MyApp.Repo.Migrations.EnablePostgis do
@@ -143,7 +151,7 @@ defmodule MyApp.Repo.Migrations.EnablePostgis do
 end
 ```
 
-### [Postgis functions](http://postgis.net/docs/manual-1.3/ch06.html) can also be used in ecto queries. Currently only the OpenGIS functions are implemented. Have a look at [lib/geo_postgis.ex](lib/geo_postgis.ex) for the implemented functions. You can use them like:
+[PostGIS functions](http://postgis.net/docs/manual-1.3/ch06.html) can also be used in Ecto queries. Currently only the OpenGIS functions are implemented. Have a look at [lib/geo_postgis.ex](lib/geo_postgis.ex) for the implemented functions. You can use them like:
 
 ```elixir
 defmodule Example do
@@ -155,7 +163,6 @@ defmodule Example do
     query
     |> Repo.one
   end
-
 end
 ```
 
@@ -168,3 +175,10 @@ After you got the dependencies via `mix deps.get` make sure that:
 * your `postgres` db user can login without a password or you set the `PGPASSWORD` environment variable appropriately
 
 Then you can run the tests as you are used to with `mix test`.
+
+
+## Copyright and License
+
+Copyright (c) 2017 Bryan Joseph
+
+Released under the MIT License, which can be found in the repository in [`LICENSE`](https://github.com/bryanjos/geo_postgis/blob/master/LICENSE).

@@ -1,13 +1,15 @@
 defmodule Geo.PostGIS.Extension do
-  @behaviour Postgrex.Extension
-
   @moduledoc """
-  PostGIS extension for Postgrex. Supports Geometry and Geography data types
+  PostGIS extension for Postgrex. Supports Geometry and Geography data types.
 
-      #Create a new Postgrex Types module:
+  ## Examples
+
+  Create a new Postgrex Types module:
+
       Postgrex.Types.define(MyApp.PostgresTypes, [Geo.PostGIS.Extension], [])
 
-      #If using with Ecto, you may want something like thing instead
+  If using with Ecto, you may want something like thing instead:
+
       Postgrex.Types.define(MyApp.PostgresTypes,
                     [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
                     json: Poison)
@@ -35,6 +37,8 @@ defmodule Geo.PostGIS.Extension do
       rows: [{42, %Geo.Point{coordinates: {30.0, -90.0}, srid: 4326}}]}}
 
   """
+
+  @behaviour Postgrex.Extension
 
   @geo_types [
     Geo.GeometryCollection,
