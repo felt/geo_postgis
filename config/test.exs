@@ -1,6 +1,8 @@
 use Mix.Config
 
-config :geo_postgis, Geo.Ecto.Test.Repo,
+config :geo_postgis, ecto_repos: [Geo.PostGIS.Test.Repo]
+
+config :geo_postgis, Geo.PostGIS.Test.Repo,
   database: "geo_postgrex_test",
   username: "postgres",
   password: "postgres",

@@ -59,7 +59,7 @@ defmodule Geo.PostGIS.Extension do
   ]
 
   def init(opts) do
-    Keyword.get(opts, :decode_binary, :reference)
+    Keyword.get(opts, :decode_copy, :copy)
   end
 
   def matching(_) do
@@ -67,13 +67,13 @@ defmodule Geo.PostGIS.Extension do
   end
 
   def format(_) do
-    :text
+    :binary
   end
 
   def encode(_opts) do
     quote location: :keep do
       %x{} = geom when x in unquote(@geo_types) ->
-        data = Geo.WKT.encode!(geom)
+        data = Geo.WKB.encode_to_iodata(geom)
         [<<IO.iodata_length(data)::int32>> | data]
     end
   end
