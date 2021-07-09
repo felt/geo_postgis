@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Update to Geo 3.4.0
 - `Geo.PostGIS.Extension` now uses the `:binary` format instead of `:text`
 
+### Changes
+
+- Passing latitude or longitude as string instead of floats is no longer supported and raises an `argument error`
+
 ## [3.3.1] - 2019-12-13
 
 ### Fixed
