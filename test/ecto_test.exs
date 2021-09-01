@@ -123,6 +123,16 @@ defmodule Geo.Ecto.Test do
     assert results == 0
   end
 
+  test "st_extent" do
+    geom = Geo.WKB.decode!(@multipoint_wkb)
+
+    Repo.insert(%Location{name: "hello", geom: geom})
+
+    query = from(location in Location, select: st_extent(location.geom))
+    assert [%Geo.Polygon{coordinates: [coordinates]}] = Repo.all(query)
+    assert length(coordinates) == 5
+  end
+
   test "example" do
     geom = Geo.WKB.decode!(@multipoint_wkb)
     Repo.insert(%Location{name: "hello", geom: geom})

@@ -400,4 +400,8 @@ defmodule Geo.PostGIS do
               unquote(seed)
             )
   end
+
+  defmacro st_extent(geometry) do
+    quote do: fragment("ST_EXTENT(?)::geometry", unquote(geometry))
+  end
 end
