@@ -400,4 +400,8 @@ defmodule Geo.PostGIS do
               unquote(seed)
             )
   end
+
+  defmacro st_build_area(geometryA) do
+    quote do: fragment("ST_BuildArea(?)", unquote(geometryA))
+  end
 end
