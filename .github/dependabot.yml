@@ -1,0 +1,30 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "11:00"
+  open-pull-requests-limit: 10
+  assignees:
+  - bryanjos
+  ignore:
+  - dependency-name: ecto_sql
+    versions:
+    - 3.5.4
+    - 3.6.0
+  - dependency-name: postgrex
+    versions:
+    - 0.15.8
+  - dependency-name: ex_doc
+    versions:
+    - 0.23.0
+    - 0.24.0
+    - 0.24.1
+    - 0.24.2
+  - dependency-name: geo
+    versions:
+    - 3.3.5
+  - dependency-name: jason
+    versions:
+    - 1.2.2
