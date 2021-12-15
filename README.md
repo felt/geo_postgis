@@ -83,9 +83,9 @@ config :thanks, Repo,
   types: MyApp.PostgresTypes
 
 
-#Create a model
+#Create a schema
 defmodule Test do
-  use Ecto.Model
+  use Ecto.Schema
 
   schema "test" do
     field :name,           :string
