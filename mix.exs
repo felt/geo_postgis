@@ -2,7 +2,7 @@ defmodule GeoPostgis.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/bryanjos/geo_postgis"
-  @version "3.4.0"
+  @version "3.4.1"
 
   def project do
     [
@@ -14,7 +14,7 @@ defmodule GeoPostgis.Mixfile do
       deps: deps(),
       package: package(),
       docs: docs(),
-      elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
