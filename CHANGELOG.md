@@ -5,12 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.4.1] - 2021-12-15
+
+### Enhancements
+
+- Add [Geo.PostGIS.st_build_area/1](https://github.com/bryanjos/geo_postgis/pull/115)
+
 ## [3.4.0] - 2021-04-10
 
 ### Enhancements
 
 - Update to Geo 3.4.0
 - `Geo.PostGIS.Extension` now uses the `:binary` format instead of `:text`
+
+### Changes
+
+- Passing latitude or longitude as string instead of floats is no longer supported and raises an `argument error`
 
 ## [3.3.1] - 2019-12-13
 
