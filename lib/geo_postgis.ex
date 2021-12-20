@@ -401,6 +401,9 @@ defmodule Geo.PostGIS do
             )
   end
 
+  defmacro st_extent(geometry) do
+    quote do: fragment("ST_EXTENT(?)::geometry", unquote(geometry))
+
   defmacro st_build_area(geometryA) do
     quote do: fragment("ST_BuildArea(?)", unquote(geometryA))
   end
