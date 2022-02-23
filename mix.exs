@@ -2,7 +2,7 @@ defmodule GeoPostgis.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/bryanjos/geo_postgis"
-  @version "3.4.1"
+  @version "3.4.2"
 
   def project do
     [
