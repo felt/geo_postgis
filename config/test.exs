@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :geo_postgis, ecto_repos: [Geo.PostGIS.Test.Repo]
 
