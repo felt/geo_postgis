@@ -86,7 +86,7 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_crosses(geometryA, geometryB) do
-    quote do: fragment("ST_Crosess(?,?)", unquote(geometryA), unquote(geometryB))
+    quote do: fragment("ST_Crosses(?,?)", unquote(geometryA), unquote(geometryB))
   end
 
   defmacro st_within(geometryA, geometryB) do
