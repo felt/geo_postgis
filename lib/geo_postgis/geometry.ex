@@ -90,7 +90,7 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     defp do_cast(geom) when is_binary(geom) do
-      with {:ok, geom} <- Geo.PostGIS.Config.json_library().decode(),
+      with {:ok, geom} <- Geo.PostGIS.Config.json_library().decode(geom),
            {:ok, result} <- Geo.JSON.decode(geom) do
         {:ok, result}
       else
