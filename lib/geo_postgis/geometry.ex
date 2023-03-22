@@ -78,15 +78,31 @@ if Code.ensure_loaded?(Ecto.Type) do
     def cast(%struct{} = geom) when struct in @geometries, do: {:ok, geom}
 
     def cast(%{"type" => type, "coordinates" => _} = geom) when type in @types do
-      {:ok, Geo.JSON.decode!(geom)}
+      do_cast(geom)
     end
 
     def cast(%{"type" => "GeometryCollection", "geometries" => _} = geom) do
-      {:ok, Geo.JSON.decode!(geom)}
+      do_cast(geom)
     end
 
     def cast(geom) when is_binary(geom) do
-      {:ok, geom |> Geo.PostGIS.Config.json_library().decode!() |> Geo.JSON.decode!()}
+      do_cast(geom)
+    end
+
+    defp do_cast(geom) when is_binary(geom) do
+      with {:ok, geom} <- Geo.PostGIS.Config.json_library().decode(),
+           {:ok, result} <- Geo.JSON.decode(geom) do
+        {:ok, result}
+      else
+        _ -> :error
+      end
+    end
+
+    defp do_cast(geom) do
+      case Geo.JSON.decode(geom) do
+        {:ok, result} -> {:ok, result}
+        {:error, _} -> :error
+      end
     end
 
     def cast(_), do: :error
