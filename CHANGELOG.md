@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.4.3] - 2023-06-20
+
+### Fixed
+
+-  [Corrected bitstring specificier int32 and updated deps](https://github.com/bryanjos/geo_postgis/pull/158)
+
 ## [3.4.2] - 2022-02-23
 
 ### Fixed
