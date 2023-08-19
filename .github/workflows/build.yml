@@ -1,0 +1,73 @@
+# base configuration pulled from:
+# https://github.com/dashbitco/broadway/blob/master/.github/workflows/ci.yml
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "*"
+
+env:
+  MIX_ENV: dev
+
+jobs:
+  test:
+    runs-on: "ubuntu-latest"
+
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: postgres
+
+
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+    name: Test Elixir ${{ matrix.elixir }}, OTP ${{ matrix.otp }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        elixir: ["1.15", "1.14", "1.13", "1.12"]
+        otp: ["26", "25"]
+        exclude:
+          - elixir: "1.12"
+            otp: "25"
+          - elixir: "1.12"
+            otp: "26"
+          - elixir: "1.13"
+            otp: "26"
+        include:
+          - elixir: "1.15"
+            otp: "26"
+            coverage: coverage
+            lint: lint
+    steps:
+      - name: Wait for PostgreSQL to start
+        run: |
+          while ! pg_isready -U postgres -h localhost -p 5432 > /dev/null 2>&1; do
+            sleep 1
+          done
+
+      - name: Set up database
+        run: |
+          PGPASSWORD=postgres psql -c 'create database geo_postgrex_test;' -U postgres -h localhost -p 5432
+          PGPASSWORD=postgres psql -c 'create extension postgis;' -U postgres -h localhost -p 5432 -d geo_postgrex_test
+
+      - uses: actions/checkout@v3
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - run: mix deps.get --only test
+      - run: mix deps.compile --warnings-as-errors
+      - run: mix test
+
+      - run: mix format --check-formatted
+        if: ${{matrix.lint}}
