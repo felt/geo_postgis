@@ -5,6 +5,7 @@ defmodule Geo.Test.Helper do
     [
       hostname: "localhost",
       username: "postgres",
+      password: "postgres",
       database: "geo_postgrex_test",
       types: Geo.PostGIS.PostgrexTypes
     ]
