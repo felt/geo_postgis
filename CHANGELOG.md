@@ -5,23 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## vNext
+
+- The minimum Elixir version is now 1.11, matching the latest `postgrex`
+
 ## [3.4.3] - 2023-06-20
 
 ### Fixed
 
--  [Corrected bitstring specificier int32 and updated deps](https://github.com/bryanjos/geo_postgis/pull/158)
+-  [Corrected bitstring specifier int32 and updated deps](https://github.com/felt/geo_postgis/pull/158)
 
 ## [3.4.2] - 2022-02-23
 
 ### Fixed
 
--  [Fixed compilation error introduced in #121](https://github.com/bryanjos/geo_postgis/pull/128)
+-  [Fixed compilation error introduced in #121](https://github.com/felt/geo_postgis/pull/128)
 
 ## [3.4.1] - 2021-12-15
 
 ### Enhancements
 
-- Add [Geo.PostGIS.st_build_area/1](https://github.com/bryanjos/geo_postgis/pull/115)
+- Add [Geo.PostGIS.st_build_area/1](https://github.com/felt/geo_postgis/pull/115)
 
 ## [3.4.0] - 2021-04-10
 
@@ -38,8 +42,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-- [Add new callback functions required by ecto 3](https://github.com/bryanjos/geo_postgis/pull/55)
-- [Ecto 3.2+ requires callbacks for custom types](https://github.com/bryanjos/geo_postgis/pull/59)
+- [Add new callback functions required by ecto 3](https://github.com/felt/geo_postgis/pull/55)
+- [Ecto 3.2+ requires callbacks for custom types](https://github.com/felt/geo_postgis/pull/59)
 
 ## [3.3.0] - 2019-08-26
 
@@ -51,13 +55,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Add
 
-- [Z versions of the datatypes](https://github.com/bryanjos/geo_postgis/pull/44)
+- [Z versions of the datatypes](https://github.com/felt/geo_postgis/pull/44)
 
 ## [3.1.0] - 2019-02-11
 
 ### Updated
 
-- [Add PointZ handling](https://github.com/bryanjos/geo_postgis/pull/25)
+- [Add PointZ handling](https://github.com/felt/geo_postgis/pull/25)
 
 ## [3.0.0] - 2018-12-01
 
@@ -69,11 +73,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- [Geo.PostGIS.st_point/2](https://github.com/bryanjos/geo_postgis/pull/6)
+- [Geo.PostGIS.st_point/2](https://github.com/felt/geo_postgis/pull/6)
 
 ### Fixed
 
-- [st_distance_in_meters/2](https://github.com/bryanjos/geo_postgis/pull/8)
+- [st_distance_in_meters/2](https://github.com/felt/geo_postgis/pull/8)
 
 ## [2.0.0] - 2018-04-14
 
@@ -99,7 +103,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- [Add ST_Collect()](https://github.com/bryanjos/geo_postgis/pull/3)
+- [Add ST_Collect()](https://github.com/felt/geo_postgis/pull/3)
 
 ## [1.0.0] - 2017-07-15
 
