@@ -1,6 +1,6 @@
 # GeoPostGIS
 
-[![Build Status](https://travis-ci.org/bryanjos/geo_postgis.svg?branch=master)](https://travis-ci.org/bryanjos/geo_postgis)
+[![Build & Test Status](https://github.com/felt/geo_postgis/actions/workflows/elixir-build-and-test.yml/badge.svg?branch=master)](https://github.com/felt/geo_postgis/actions/workflows/elixir-build-and-test.yml)
 [![Module Version](https://img.shields.io/hexpm/v/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/geo_postgis/)
 [![Total Download](https://img.shields.io/hexpm/dt/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
