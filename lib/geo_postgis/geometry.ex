@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(Ecto.Type) do
   defmodule Geo.PostGIS.Geometry do
     @moduledoc """
-    Implements the Ecto.Type behaviour for all geometry types
+    Implements the Ecto.Type behaviour for all geometry types.
     """
 
     alias Geo.{
