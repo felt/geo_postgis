@@ -57,21 +57,7 @@ if Code.ensure_loaded?(Ecto.Type) do
       GeometryCollection
     ]
 
-    @type t ::
-            Point.t()
-            | PointZ.t()
-            | PointM.t()
-            | PointZM.t()
-            | LineString.t()
-            | LineStringZ.t()
-            | Polygon.t()
-            | PolygonZ.t()
-            | MultiPoint.t()
-            | MultiPointZ.t()
-            | MultiLineString.t()
-            | MultiLineStringZ.t()
-            | MultiPolygon.t()
-            | MultiPolygonZ.t()
+    @type t :: Geo.geometry()
 
     if macro_exported?(Ecto.Type, :__using__, 1) do
       use Ecto.Type
