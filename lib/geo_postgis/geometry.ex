@@ -57,6 +57,8 @@ if Code.ensure_loaded?(Ecto.Type) do
       GeometryCollection
     ]
 
+    @type t :: Geo.geometry()
+
     if macro_exported?(Ecto.Type, :__using__, 1) do
       use Ecto.Type
     else
