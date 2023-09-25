@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2023-09-22
+
+### New features
+
+- [Added ST_MakePoint function](https://github.com/felt/geo_postgis/pull/162) (thanks to new contributor @Slavenin!)
+- [Added ST_IsValid and ST_MakeValid](https://github.com/felt/geo_postgis/pull/146/) (thanks to new contributor @AntoineAugusti!)
+- [Added `Geo.PostGIS.Geometry.t()` for Dialyzer](https://github.com/felt/geo_postgis/pull/173) (thanks to new contributor @RudolfMan!)
+
+### Bug fix
+
+- [Corrected ST_Crosses fragment](https://github.com/felt/geo_postgis/pull/154) (thanks to new contributor @varjas!)
+
+### Compatibility fix
+
+- [Update geometry.ex to force recompilation on upgrade](https://github.com/felt/geo_postgis/pull/174)—this should make it unnecessary to do the `mix deps.clean` described in the upgrade notes to v3.4.4 below. In my testing, when moving from v3.4.3 to this release, that step was unnecessary; however, beware that it may still be needed when moving from a branch where you're using v3.5.0 to one using v3.4.3 or earlier.
+
 ## [3.4.4] - 2023-09-20
 
 As of v3.4.4, `geo_postgis` is being maintained by the Felt team. As a company building a geospatial product on Elixir, with a track record of [supporting open source software](https://felt.com/open-source), we're excited for the future of the project.
