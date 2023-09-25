@@ -409,6 +409,18 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_BuildArea(?)", unquote(geometryA))
   end
 
+  defmacro st_is_valid(geometry) do
+    quote do: fragment("ST_IsValid(?)", unquote(geometry))
+  end
+
+  defmacro st_make_valid(geometry) do
+    quote do: fragment("ST_MakeValid(?)", unquote(geometry))
+  end
+
+  defmacro st_make_valid(geometry, params) do
+    quote do: fragment("ST_MakeValid(?, ?)", unquote(geometry), unquote(params))
+  end
+
   defmacro st_make_point(x, y) do
     quote do: fragment("ST_MakePoint(?, ?)", unquote(x), unquote(y))
   end
