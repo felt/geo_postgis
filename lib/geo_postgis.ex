@@ -86,7 +86,7 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_crosses(geometryA, geometryB) do
-    quote do: fragment("ST_Crosess(?,?)", unquote(geometryA), unquote(geometryB))
+    quote do: fragment("ST_Crosses(?,?)", unquote(geometryA), unquote(geometryB))
   end
 
   defmacro st_within(geometryA, geometryB) do
@@ -419,5 +419,17 @@ defmodule Geo.PostGIS do
 
   defmacro st_make_valid(geometry, params) do
     quote do: fragment("ST_MakeValid(?, ?)", unquote(geometry), unquote(params))
+  end
+
+  defmacro st_make_point(x, y) do
+    quote do: fragment("ST_MakePoint(?, ?)", unquote(x), unquote(y))
+  end
+
+  defmacro st_make_point(x, y, z) do
+    quote do: fragment("ST_MakePoint(?, ?, ?)", unquote(x), unquote(y), unquote(z))
+  end
+
+  defmacro st_make_point(x, y, z, m) do
+    quote do: fragment("ST_MakePoint(?, ?, ?, ?)", unquote(x), unquote(y), unquote(z), unquote(m))
   end
 end

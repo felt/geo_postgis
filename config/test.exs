@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :geo_postgis, ecto_repos: [Geo.PostGIS.Test.Repo]
 
@@ -10,4 +10,4 @@ config :geo_postgis, Geo.PostGIS.Test.Repo,
   types: Geo.PostGIS.PostgrexTypes
 
 # Print only warnings and errors during test
-config :logger, level: :warn
+config :logger, level: :warning

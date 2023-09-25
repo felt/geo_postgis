@@ -74,20 +74,20 @@ defmodule Geo.PostGIS.Extension do
     quote location: :keep do
       %x{} = geom when x in unquote(@geo_types) ->
         data = Geo.WKB.encode_to_iodata(geom)
-        [<<IO.iodata_length(data)::int32>> | data]
+        [<<IO.iodata_length(data)::integer-size(32)>> | data]
     end
   end
 
   def decode(:reference) do
     quote location: :keep do
-      <<len::int32, wkb::binary-size(len)>> ->
+      <<len::integer-size(32), wkb::binary-size(len)>> ->
         Geo.WKB.decode!(wkb)
     end
   end
 
   def decode(:copy) do
     quote location: :keep do
-      <<len::int32, wkb::binary-size(len)>> ->
+      <<len::integer-size(32), wkb::binary-size(len)>> ->
         Geo.WKB.decode!(:binary.copy(wkb))
     end
   end

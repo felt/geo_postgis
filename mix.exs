@@ -1,14 +1,14 @@
 defmodule GeoPostgis.Mixfile do
   use Mix.Project
 
-  @source_url "https://github.com/bryanjos/geo_postgis"
-  @version "3.4.2"
+  @source_url "https://github.com/felt/geo_postgis"
+  @version "3.4.4"
 
   def project do
     [
       app: :geo_postgis,
       version: @version,
-      elixir: "~> 1.10",
+      elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       name: "GeoPostGIS",
       deps: deps(),
@@ -27,11 +27,12 @@ defmodule GeoPostgis.Mixfile do
 
   defp deps do
     [
-      {:geo, "~> 3.4"},
+      {:geo, "~> 3.5"},
       {:postgrex, ">= 0.0.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:ecto, "~> 3.0", optional: true},
       {:ecto_sql, "~> 3.0", optional: true, only: :test},
-      {:poison, "~> 2.2 or ~> 3.0 or ~> 4.0", optional: true},
+      {:poison, "~> 2.2 or ~> 3.0 or ~> 4.0 or ~> 5.0", optional: true},
       {:jason, "~> 1.2", optional: true}
     ]
   end
@@ -40,7 +41,7 @@ defmodule GeoPostgis.Mixfile do
     [
       description: "PostGIS extension for Postgrex.",
       files: ["lib", "mix.exs", "README.md", "CHANGELOG.md"],
-      maintainers: ["Bryan Joseph"],
+      maintainers: ["Tyler Young", "Bryan Joseph"],
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url}
     ]
