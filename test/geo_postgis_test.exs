@@ -7,7 +7,7 @@ defmodule Geo.PostGIS.Test do
     {:ok, _result} =
       Postgrex.query(
         pid,
-        "DROP TABLE IF EXISTS text_test, point_test, linestring_test, polygon_test, multipoint_test, multilinestring_test, multipolygon_test, geometrycollection_test",
+        "DROP TABLE IF EXISTS text_test, point_test, linestring_test, linestringz_test, linestringzm_test, polygon_test, multipoint_test, multilinestring_test, multipolygon_test, geometrycollection_test",
         []
       )
 
@@ -74,6 +74,42 @@ defmodule Geo.PostGIS.Test do
     {:ok, _} = Postgrex.query(pid, "INSERT INTO linestring_test VALUES ($1, $2)", [42, geo])
     {:ok, result} = Postgrex.query(pid, "SELECT * FROM linestring_test", [])
     assert(result.rows == [[42, geo]])
+  end
+
+  test "insert LineStringZ", context do
+    pid = context[:pid]
+    geo = %Geo.LineStringZ{srid: 4326, coordinates: [{30, 10, 20}, {10, 30, 2}, {40, 40, 50}]}
+
+    {:ok, _} =
+      Postgrex.query(
+        pid,
+        "CREATE TABLE linestringz_test (id int, geom geometry(LineStringZ, 4326))",
+        []
+      )
+
+    {:ok, _} = Postgrex.query(pid, "INSERT INTO linestringz_test VALUES ($1, $2)", [42, geo])
+    {:ok, result} = Postgrex.query(pid, "SELECT * FROM linestringz_test", [])
+    assert result.rows == [[42, geo]]
+  end
+
+  test "insert LineStringZM", context do
+    pid = context[:pid]
+
+    geo = %Geo.LineStringZM{
+      srid: 4326,
+      coordinates: [{30, 10, 20, 40}, {10, 30, 2, -10}, {40, 40, 50, 100}]
+    }
+
+    {:ok, _} =
+      Postgrex.query(
+        pid,
+        "CREATE TABLE linestringzm_test (id int, geom geometry(LineStringZM, 4326))",
+        []
+      )
+
+    {:ok, _} = Postgrex.query(pid, "INSERT INTO linestringzm_test VALUES ($1, $2)", [42, geo])
+    {:ok, result} = Postgrex.query(pid, "SELECT * FROM linestringzm_test", [])
+    assert result.rows == [[42, geo]]
   end
 
   test "insert polygon", context do
