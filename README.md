@@ -1,13 +1,13 @@
 # GeoPostGIS
 
-[![Build Status](https://travis-ci.org/bryanjos/geo_postgis.svg?branch=master)](https://travis-ci.org/bryanjos/geo_postgis)
+[![Build & Test Status](https://github.com/felt/geo_postgis/actions/workflows/elixir-build-and-test.yml/badge.svg?branch=master)](https://github.com/felt/geo_postgis/actions/workflows/elixir-build-and-test.yml)
 [![Module Version](https://img.shields.io/hexpm/v/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/geo_postgis/)
 [![Total Download](https://img.shields.io/hexpm/dt/geo_postgis.svg)](https://hex.pm/packages/geo_postgis)
-[![License](https://img.shields.io/hexpm/l/geo_postgis.svg)](https://github.com/bryanjos/geo_postgis/blob/master/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/bryanjos/geo_postgis.svg)](https://github.com/bryanjos/geo_postgis/commits/master)
+[![License](https://img.shields.io/hexpm/l/geo_postgis.svg)](https://github.com/felt/geo_postgis/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/felt/geo_postgis.svg)](https://github.com/felt/geo_postgis/commits/master)
 
-Postgrex extension for the PostGIS data types. Uses the [geo](https://github.com/bryanjos/geo) library
+Postgrex extension for the PostGIS data types. Uses the [geo](https://github.com/felt/geo) library
 
 ## Installation
 
@@ -17,7 +17,7 @@ dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:geo_postgis, "~> 3.4"}
+    {:geo_postgis, "~> 3.5"}
   ]
 end
 ```
@@ -181,4 +181,4 @@ Then you can run the tests as you are used to with `mix test`.
 
 Copyright (c) 2017 Bryan Joseph
 
-Released under the MIT License, which can be found in the repository in [`LICENSE`](https://github.com/bryanjos/geo_postgis/blob/master/LICENSE).
+Released under the MIT License, which can be found in the repository in [`LICENSE`](https://github.com/felt/geo_postgis/blob/master/LICENSE).

@@ -27,3 +27,5 @@ geo_postgis-*.tar
 
 # Emacs project file
 .projectile
+
+.lexical/

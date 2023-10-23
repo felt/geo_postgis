@@ -37,8 +37,7 @@ defmodule Geo.Ecto.Test do
   setup _ do
     {:ok, pid} = Postgrex.start_link(Geo.Test.Helper.opts())
 
-    {:ok, _} =
-      Postgrex.query(pid, "CREATE EXTENSION IF NOT EXISTS postgis", [])
+    {:ok, _} = Postgrex.query(pid, "CREATE EXTENSION IF NOT EXISTS postgis", [])
 
     {:ok, _} =
       Postgrex.query(pid, "DROP TABLE IF EXISTS locations, geographies, location_multi", [])

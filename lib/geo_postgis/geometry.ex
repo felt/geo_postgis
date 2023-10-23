@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(Ecto.Type) do
   defmodule Geo.PostGIS.Geometry do
     @moduledoc """
-    Implements the Ecto.Type behaviour for all geometry types
+    Implements the Ecto.Type behaviour for all geometry types.
     """
 
     alias Geo.{
@@ -59,6 +59,8 @@ if Code.ensure_loaded?(Ecto.Type) do
       MultiPolygonZ,
       GeometryCollection
     ]
+
+    @type t :: Geo.geometry()
 
     if macro_exported?(Ecto.Type, :__using__, 1) do
       use Ecto.Type
