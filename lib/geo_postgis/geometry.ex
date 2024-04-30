@@ -89,6 +89,8 @@ if Code.ensure_loaded?(Ecto.Type) do
       do_cast(geom)
     end
 
+    def cast(_), do: :error
+
     defp do_cast(geom) when is_binary(geom) do
       case Geo.PostGIS.Config.json_library().decode(geom) do
         {:ok, geom} when is_map(geom) -> do_cast(geom)
@@ -102,8 +104,6 @@ if Code.ensure_loaded?(Ecto.Type) do
         {:error, reason} -> {:error, [message: "failed to decode GeoJSON", reason: reason]}
       end
     end
-
-    def cast(_), do: :error
 
     def embed_as(_), do: :self
 
