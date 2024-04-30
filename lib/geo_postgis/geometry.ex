@@ -99,7 +99,7 @@ if Code.ensure_loaded?(Ecto.Type) do
     defp do_cast(geom) do
       case Geo.JSON.decode(geom) do
         {:ok, result} -> {:ok, result}
-        {:error, _} -> :error
+        {:error, reason} -> {:error, [message: "failed to decode GeoJSON", reason: reason]}
       end
     end
 
