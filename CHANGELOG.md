@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2024-05-08
+
+### New features
+
+* Do not raise on unsuccessful cast, with thanks to new contributor @marmor157 (#156)
+* Added support for `st_make_envelope`, with thanks to @mjquinlan2000 (#195)
+
+### Updates
+
+* ex_doc updated to v0.32.1
+
 ## [3.6.0] - 2024-03-11
 
 ### New feature
