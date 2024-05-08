@@ -17,7 +17,7 @@ dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:geo_postgis, "~> 3.6"}
+    {:geo_postgis, "~> 3.7"}
   ]
 end
 ```
