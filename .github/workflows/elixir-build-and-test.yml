@@ -80,5 +80,4 @@ jobs:
         run: mix test --warnings-as-errors
 
       - name: Run tests
-        if: ${{ matrix.elixir == '1.11.4' }}
         run: mix test
