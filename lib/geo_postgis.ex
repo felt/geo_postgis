@@ -434,7 +434,7 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_make_envelope(xMin, yMin, xMax, yMax) do
-    quote do: 
+    quote do:
             fragment(
               "ST_MakeEnvelope(?, ?, ?, ?)",
               unquote(xMin),
@@ -448,11 +448,11 @@ defmodule Geo.PostGIS do
     quote do:
             fragment(
               "ST_MakeEnvelope(?, ?, ?, ?, ?)",
-               unquote(xMin),
-                unquote(yMin),
-                unquote(xMax),
-                unquote(yMax),
-                unquote(srid)
-              )
+              unquote(xMin),
+              unquote(yMin),
+              unquote(xMax),
+              unquote(yMax),
+              unquote(srid)
+            )
   end
 end
