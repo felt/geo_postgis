@@ -68,12 +68,12 @@ rows: [{42, %Geo.Point{coordinates: {30.0, -90.0}, srid: 4326 }}]}}
 Use with [Ecto](https://hexdocs.pm/ecto_sql/Ecto.Adapters.Postgres.html#module-extensions):
 
 ```elixir
-#If using with Ecto, you may want something like thing instead
+# If using with Ecto, you may want something like this instead
 Postgrex.Types.define(MyApp.PostgresTypes,
               [Geo.PostGIS.Extension] ++ Ecto.Adapters.Postgres.extensions(),
               json: Jason)
 
-#Add extensions to your repo config
+# Add extensions to your repo config
 config :thanks, Repo,
   database: "geo_postgrex_test",
   username: "postgres",
@@ -83,7 +83,7 @@ config :thanks, Repo,
   types: MyApp.PostgresTypes
 
 
-#Create a schema
+# Create a schema
 defmodule Test do
   use Ecto.Schema
 
@@ -93,7 +93,7 @@ defmodule Test do
   end
 end
 
-#Geometry or Geography columns can be created in migrations too
+# Geometry or Geography columns can also be created in migrations
 defmodule Repo.Migrations.Init do
   use Ecto.Migration
 

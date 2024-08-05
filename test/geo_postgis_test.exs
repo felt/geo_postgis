@@ -131,7 +131,7 @@ defmodule Geo.PostGIS.Test do
     assert(result.rows == [[42, geo]])
   end
 
-  test "insert mulitpoint", context do
+  test "insert multipoint", context do
     pid = context[:pid]
     geo = %Geo.MultiPoint{coordinates: [{0, 0}, {20, 20}, {60, 60}], srid: 4326}
 
@@ -147,7 +147,7 @@ defmodule Geo.PostGIS.Test do
     assert(result.rows == [[42, geo]])
   end
 
-  test "insert mulitlinestring", context do
+  test "insert multilinestring", context do
     pid = context[:pid]
 
     geo = %Geo.MultiLineString{
@@ -167,7 +167,7 @@ defmodule Geo.PostGIS.Test do
     assert(result.rows == [[42, geo]])
   end
 
-  test "insert mulitpolygon", context do
+  test "insert multipolygon", context do
     pid = context[:pid]
 
     geo = %Geo.MultiPolygon{
