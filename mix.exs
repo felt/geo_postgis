@@ -2,7 +2,7 @@ defmodule GeoPostgis.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/felt/geo_postgis"
-  @version "3.7.0"
+  @version "3.7.1"
 
   def project do
     [
@@ -27,7 +27,7 @@ defmodule GeoPostgis.Mixfile do
 
   defp deps do
     [
-      {:geo, "~> 3.6"},
+      {:geo, "~> 3.6 or ~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:ecto, "~> 3.0", optional: true},

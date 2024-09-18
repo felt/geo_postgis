@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.7.1] - 2024-09-18
+
+Adds support for the newly released [`geo`](https://github.com/felt/geo) v4.0.0, while maintaining compatibility with v3.6.x and v3.7.x.
+
 ## [3.7.0] - 2024-05-08
 
 ### New features
