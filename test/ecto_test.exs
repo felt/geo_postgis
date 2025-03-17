@@ -234,4 +234,31 @@ defmodule Geo.Ecto.Test do
     assert m1.geom == geom1
     assert m2.geom == geom2
   end
+
+  test "st_node with self-intersecting linestring" do
+    coordinates = [{0, 0, 0}, {2, 2, 2}, {0, 2, 0}, {2, 0, 2}]
+    cross_point = {1, 1, 1}
+
+    # Create a self-intersecting linestring (crossing at point {1, 1, 1})
+    linestring = %Geo.LineStringZ{
+      coordinates: coordinates,
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "intersecting lines", geom: linestring})
+
+    query = from(
+      location in LocationMulti,
+      select: st_node(location.geom)
+    )
+
+    result = Repo.one(query)
+
+    assert %Geo.MultiLineStringZ{} = result
+    assert result.coordinates == [
+      [Enum.at(coordinates, 0), cross_point],
+      [cross_point, Enum.at(coordinates, 1), Enum.at(coordinates, 2), cross_point],
+      [cross_point, Enum.at(coordinates, 3)]
+    ]
+  end
 end
