@@ -94,7 +94,6 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
-          version-type: 'strict'
           build-app: false
 
       - name: Compile with warnings as errors
