@@ -11,7 +11,7 @@ on:
 jobs:
   quality_checks:
     name: Elixir Quality Checks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     env:
       # In MIX_ENV=test, `$ mix xref graph` shows us a whole bunch of
       # test stuff that isn't really relevant.
