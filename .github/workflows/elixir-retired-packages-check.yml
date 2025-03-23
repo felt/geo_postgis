@@ -12,21 +12,16 @@ jobs:
   retired_packages:
     name: Elixir Retired Packages Check
     runs-on: ubuntu-latest
-    env:
-      MIX_ENV: dev
-      elixir: "1.16.2"
-      otp: "26.1.2"
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Setup Elixir Project
-        uses: ./.github/actions/elixir-setup
+      - name: Setup beam
+        uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{ env.elixir }}
-          otp-version: ${{ env.otp }}
-          build-app: false
+          otp-version: 27.2.4
+          elixir-version: 1.18.2
+          install-hex: true
 
       - name: Check for retired/abandoned deps
         run: mix hex.audit
