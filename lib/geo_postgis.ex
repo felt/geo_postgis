@@ -455,4 +455,8 @@ defmodule Geo.PostGIS do
               unquote(srid)
             )
   end
+
+  defmacro st_node(geometry) do
+    quote do: fragment("ST_Node(?)", unquote(geometry))
+  end
 end
