@@ -11,7 +11,7 @@ on:
 jobs:
   retired_packages:
     name: Elixir Retired Packages Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       MIX_ENV: dev
       elixir: "1.16.2"
