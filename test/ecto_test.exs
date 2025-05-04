@@ -248,19 +248,21 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "intersecting lines", geom: linestring})
 
-      query = from(
-        location in LocationMulti,
-        select: st_node(location.geom)
-      )
+      query =
+        from(
+          location in LocationMulti,
+          select: st_node(location.geom)
+        )
 
       result = Repo.one(query)
 
       assert %Geo.MultiLineStringZ{} = result
+
       assert result.coordinates == [
-        [Enum.at(coordinates, 0), cross_point],
-        [cross_point, Enum.at(coordinates, 1), Enum.at(coordinates, 2), cross_point],
-        [cross_point, Enum.at(coordinates, 3)]
-      ]
+               [Enum.at(coordinates, 0), cross_point],
+               [cross_point, Enum.at(coordinates, 1), Enum.at(coordinates, 2), cross_point],
+               [cross_point, Enum.at(coordinates, 3)]
+             ]
     end
 
     test "intersecting multilinestring" do
@@ -279,20 +281,22 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "intersecting lines", geom: linestring})
 
-      query = from(
-        location in LocationMulti,
-        select: st_node(location.geom)
-      )
+      query =
+        from(
+          location in LocationMulti,
+          select: st_node(location.geom)
+        )
 
       result = Repo.one(query)
 
       assert %Geo.MultiLineStringZ{} = result
+
       assert result.coordinates == [
-        [Enum.at(coordinates1, 0), cross_point],
-        [Enum.at(coordinates2, 0), cross_point],
-        [cross_point, Enum.at(coordinates1, 1)],
-        [cross_point, Enum.at(coordinates2, 1)]
-      ]
+               [Enum.at(coordinates1, 0), cross_point],
+               [Enum.at(coordinates2, 0), cross_point],
+               [cross_point, Enum.at(coordinates1, 1)],
+               [cross_point, Enum.at(coordinates2, 1)]
+             ]
     end
   end
 end
