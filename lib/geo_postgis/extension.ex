@@ -47,6 +47,7 @@ defmodule Geo.PostGIS.Extension do
     Geo.LineStringZM,
     Geo.MultiLineString,
     Geo.MultiLineStringZ,
+    Geo.MultiLineStringZM,
     Geo.MultiPoint,
     Geo.MultiPointZ,
     Geo.MultiPolygon,
