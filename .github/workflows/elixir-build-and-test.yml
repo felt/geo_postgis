@@ -18,33 +18,21 @@ jobs:
     strategy:
       matrix:
         include:
-          # Elixir 1.14 requires at least OTP 23
-          - elixir: '1.14.4'
-            otp: '23.3.4'
-            os: ubuntu-22.04
-          - elixir: '1.14.4'
-            otp: '24.3.4'
-            os: ubuntu-22.04
+          # Elixir 1.14 requires at least OTP 23, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.14.4'
             otp: '25.3.2'
             os: ubuntu-22.04
           - elixir: '1.14.4'
             otp: '26.2.5'
             os: ubuntu-22.04
-          # Elixir 1.15 requires at least OTP 24
-          - elixir: '1.15.5'
-            otp: '24.3.4'
-            os: ubuntu-22.04
+          # Elixir 1.15 requires at least OTP 24, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.15.5'
             otp: '25.3.2'
             os: ubuntu-22.04
           - elixir: '1.15.5'
             otp: '26.2.5'
             os: ubuntu-22.04
-          # Elixir 1.16 requires at least OTP 24
-          - elixir: '1.16.2'
-            otp: '24.3.4'
-            os: ubuntu-22.04
+          # Elixir 1.16 requires at least OTP 24, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.16.2'
             otp: '25.3.2'
             os: ubuntu-22.04
