@@ -46,6 +46,11 @@ inputs:
     type: string
     default: 'v1'
     description: If you need to reset the cache for some reason, you can change this key.
+  version-type:
+    required: false
+    type: string
+    default: ''
+    description: Type of version matching to use (e.g. 'strict' for exact versions)
 outputs:
   otp-version:
     description: "Exact OTP version selected by the BEAM setup step"
@@ -62,6 +67,7 @@ runs:
       with:
         elixir-version: ${{ inputs.elixir-version }}
         otp-version: ${{ inputs.otp-version }}
+        version-type: ${{ inputs.version-type }}
 
     - name: Get deps cache
       uses: actions/cache@v4
