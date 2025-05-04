@@ -18,39 +18,6 @@ jobs:
     strategy:
       matrix:
         include:
-          # Elixir 1.11 doesn't support OTP 25+
-          - elixir: '1.11.4'
-            otp: '22.3'
-            os: ubuntu-22.04
-          - elixir: '1.11.4'
-            otp: '23.3.4'
-            os: ubuntu-22.04
-          - elixir: '1.11.4'
-            otp: '24.3.4'
-            os: ubuntu-22.04
-          # Elixir 1.12 doesn't support OTP 25+
-          - elixir: '1.12.3'
-            otp: '22.3'
-            os: ubuntu-22.04
-          - elixir: '1.12.3'
-            otp: '23.3.4'
-            os: ubuntu-22.04
-          - elixir: '1.12.3'
-            otp: '24.3.4'
-            os: ubuntu-22.04
-          # Elixir 1.13 doesn't support OTP 26+
-          - elixir: '1.13.4'
-            otp: '22.3'
-            os: ubuntu-22.04
-          - elixir: '1.13.4'
-            otp: '23.3.4'
-            os: ubuntu-22.04
-          - elixir: '1.13.4'
-            otp: '24.3.4'
-            os: ubuntu-22.04
-          - elixir: '1.13.4'
-            otp: '25.3.2'
-            os: ubuntu-22.04
           # Elixir 1.14 requires at least OTP 23
           - elixir: '1.14.4'
             otp: '23.3.4'
