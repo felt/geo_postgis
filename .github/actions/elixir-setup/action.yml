@@ -46,6 +46,11 @@ inputs:
     type: string
     default: 'v1'
     description: If you need to reset the cache for some reason, you can change this key.
+  version-type:
+    required: false
+    type: string
+    default: ''
+    description: Type of version matching to use (e.g. 'strict' for exact versions)
 outputs:
   otp-version:
     description: "Exact OTP version selected by the BEAM setup step"
@@ -62,9 +67,10 @@ runs:
       with:
         elixir-version: ${{ inputs.elixir-version }}
         otp-version: ${{ inputs.otp-version }}
+        version-type: ${{ inputs.version-type }}
 
     - name: Get deps cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: deps/
         key: deps-${{ inputs.cache-key }}-${{ runner.os }}-${{ hashFiles('**/mix.lock') }}
@@ -72,7 +78,7 @@ runs:
           deps-${{ inputs.cache-key }}-${{ runner.os }}-
 
     - name: Get build cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: build-cache
       with:
         path: _build/${{env.MIX_ENV}}/
@@ -81,7 +87,7 @@ runs:
           build-${{ inputs.cache-key }}-${{ runner.os }}-${{ inputs.otp-version }}-${{ inputs.elixir-version }}-${{ env.MIX_ENV }}-
 
     - name: Get Hex cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: hex-cache
       with:
         path: ~/.hex
@@ -90,7 +96,7 @@ runs:
           hex-${{ inputs.cache-key }}-${{ runner.os }}-${{ inputs.otp-version }}-${{ inputs.elixir-version }}-
 
     - name: Get Mix cache
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       id: mix-cache
       with:
         path: ${{ env.MIX_HOME || '~/.mix' }}

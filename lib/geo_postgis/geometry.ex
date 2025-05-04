@@ -18,6 +18,7 @@ if Code.ensure_loaded?(Ecto.Type) do
       MultiPointZ,
       MultiLineString,
       MultiLineStringZ,
+      MultiLineStringZM,
       MultiPolygon,
       MultiPolygonZ,
       GeometryCollection
@@ -37,6 +38,7 @@ if Code.ensure_loaded?(Ecto.Type) do
       "MultiPointZ",
       "MultiLineString",
       "MultiLineStringZ",
+      "MultiLineStringZM",
       "MultiPolygon",
       "MultiPolygonZ"
     ]
@@ -55,6 +57,7 @@ if Code.ensure_loaded?(Ecto.Type) do
       MultiPointZ,
       MultiLineString,
       MultiLineStringZ,
+      MultiLineStringZM,
       MultiPolygon,
       MultiPolygonZ,
       GeometryCollection

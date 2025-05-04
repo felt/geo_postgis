@@ -11,59 +11,34 @@ on:
 jobs:
   build:
     name: Elixir Unit Tests
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     env:
       MIX_ENV: test
       PGPASSWORD: postgres
     strategy:
       matrix:
         include:
-          # Elixir 1.11 doesn't support OTP 25+
-          - elixir: '1.11.4'
-            otp: '22.3'
-          - elixir: '1.11.4'
-            otp: '23.3.4'
-          - elixir: '1.11.4'
-            otp: '24.3.4'
-          # Elixir 1.12 doesn't support OTP 25+
-          - elixir: '1.12.3'
-            otp: '22.3'
-          - elixir: '1.12.3'
-            otp: '23.3.4'
-          - elixir: '1.12.3'
-            otp: '24.3.4'
-          # Elixir 1.13 doesn't support OTP 26+
-          - elixir: '1.13.4'
-            otp: '22.3'
-          - elixir: '1.13.4'
-            otp: '23.3.4'
-          - elixir: '1.13.4'
-            otp: '24.3.4'
-          - elixir: '1.13.4'
-            otp: '25.3.2'
-        # Elixir 1.14 requires at least OTP 23
-          - elixir: '1.14.4'
-            otp: '23.3.4'
-          - elixir: '1.14.4'
-            otp: '24.3.4'
+          # Elixir 1.14 requires at least OTP 23, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.14.4'
             otp: '25.3.2'
+            os: ubuntu-22.04
           - elixir: '1.14.4'
             otp: '26.2.5'
-          # Elixir 1.15 requires at least OTP 24
-          - elixir: '1.15.5'
-            otp: '24.3.4'
+            os: ubuntu-22.04
+          # Elixir 1.15 requires at least OTP 24, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.15.5'
             otp: '25.3.2'
+            os: ubuntu-22.04
           - elixir: '1.15.5'
             otp: '26.2.5'
-          # Elixir 1.16 requires at least OTP 24
-          - elixir: '1.16.2'
-            otp: '24.3.4'
+            os: ubuntu-22.04
+          # Elixir 1.16 requires at least OTP 24, but Ubuntu 22 only supports back to OTP 25
           - elixir: '1.16.2'
             otp: '25.3.2'
+            os: ubuntu-22.04
           - elixir: '1.16.2'
             otp: '26.2.5'
+            os: ubuntu-22.04
 
     services:
       db:
@@ -87,6 +62,7 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
+          version-type: 'strict'
           build-app: false
 
       - name: Compile with warnings as errors
