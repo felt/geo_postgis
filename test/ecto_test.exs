@@ -313,22 +313,23 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "lines with different orientation", geom: multiline})
 
-      query = from(
-        location in LocationMulti,
-        where: location.name == "lines with different orientation",
-        select: st_line_merge(location.geom)
-      )
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "lines with different orientation",
+          select: st_line_merge(location.geom)
+        )
 
       result = Repo.one(query)
 
       assert %Geo.LineString{} = result
 
       assert result.coordinates == [
-        {10, 160},
-        {60, 120},
-        {120, 140},
-        {180, 120}
-      ]
+               {10, 160},
+               {60, 120},
+               {120, 140},
+               {180, 120}
+             ]
     end
 
     test "lines not merged across intersections with degree > 2" do
@@ -344,11 +345,12 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "lines with intersection degree > 2", geom: multiline})
 
-      query = from(
-        location in LocationMulti,
-        where: location.name == "lines with intersection degree > 2",
-        select: st_line_merge(location.geom)
-      )
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "lines with intersection degree > 2",
+          select: st_line_merge(location.geom)
+        )
 
       result = Repo.one(query)
 
@@ -379,11 +381,12 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "disconnected lines", geom: multiline})
 
-      query = from(
-        location in LocationMulti,
-        where: location.name == "disconnected lines",
-        select: st_line_merge(location.geom)
-      )
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "disconnected lines",
+          select: st_line_merge(location.geom)
+        )
 
       result = Repo.one(query)
 
