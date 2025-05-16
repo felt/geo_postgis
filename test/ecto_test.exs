@@ -299,4 +299,107 @@ defmodule Geo.Ecto.Test do
              ]
     end
   end
+
+  describe "st_line_merge" do
+    test "merge lines with different orientation" do
+      multiline = %Geo.MultiLineString{
+        coordinates: [
+          [{10, 160}, {60, 120}],
+          [{120, 140}, {60, 120}],
+          [{120, 140}, {180, 120}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "lines with different orientation", geom: multiline})
+
+      query = from(
+        location in LocationMulti,
+        where: location.name == "lines with different orientation",
+        select: st_line_merge(location.geom)
+      )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+
+      assert result.coordinates == [
+        {10, 160},
+        {60, 120},
+        {120, 140},
+        {180, 120}
+      ]
+    end
+
+    test "lines not merged across intersections with degree > 2" do
+      multiline = %Geo.MultiLineString{
+        coordinates: [
+          [{10, 160}, {60, 120}],
+          [{120, 140}, {60, 120}],
+          [{120, 140}, {180, 120}],
+          [{100, 180}, {120, 140}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "lines with intersection degree > 2", geom: multiline})
+
+      query = from(
+        location in LocationMulti,
+        where: location.name == "lines with intersection degree > 2",
+        select: st_line_merge(location.geom)
+      )
+
+      result = Repo.one(query)
+
+      # Verify the result is still multiple lines after merging and consists of 3 linestrings
+      assert %Geo.MultiLineString{} = result
+      assert length(result.coordinates) == 3
+
+      expected_linestrings = [
+        [{10, 160}, {60, 120}, {120, 140}],
+        [{100, 180}, {120, 140}],
+        [{120, 140}, {180, 120}]
+      ]
+
+      sorted_result = Enum.sort_by(result.coordinates, fn linestring -> hd(linestring) end)
+      sorted_expected = Enum.sort_by(expected_linestrings, fn linestring -> hd(linestring) end)
+
+      assert sorted_result == sorted_expected
+    end
+
+    test "return original geometry if not possible to merge" do
+      multiline = %Geo.MultiLineString{
+        coordinates: [
+          [{-29, -27}, {-30, -29.7}, {-36, -31}, {-45, -33}],
+          [{-45.2, -33.2}, {-46, -32}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "disconnected lines", geom: multiline})
+
+      query = from(
+        location in LocationMulti,
+        where: location.name == "disconnected lines",
+        select: st_line_merge(location.geom)
+      )
+
+      result = Repo.one(query)
+
+      # Verify the result is not merged and consists of 2 linestrings
+      assert %Geo.MultiLineString{} = result
+      assert length(result.coordinates) == 2
+
+      expected_linestrings = [
+        [{-29, -27}, {-30, -29.7}, {-36, -31}, {-45, -33}],
+        [{-45.2, -33.2}, {-46, -32}]
+      ]
+
+      sorted_result = Enum.sort_by(result.coordinates, fn linestring -> hd(linestring) end)
+      sorted_expected = Enum.sort_by(expected_linestrings, fn linestring -> hd(linestring) end)
+
+      assert sorted_result == sorted_expected
+    end
+  end
 end
