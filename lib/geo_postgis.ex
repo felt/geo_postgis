@@ -461,6 +461,6 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_line_merge(geometry, directed) do
-    quote do: fragment("ST_LineMerge(?, ?)", unquote(geometry), unquote(directed))
+    quote do: fragment("ST_LineMerge(?, ?::boolean)", unquote(geometry), unquote(directed))
   end
 end
