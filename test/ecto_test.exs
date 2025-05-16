@@ -361,11 +361,11 @@ defmodule Geo.Ecto.Test do
       assert %Geo.LineString{} = result
 
       assert result.coordinates == [
-        {180, 30},
-        {120, 50},
-        {60, 30},
-        {10, 70}
-      ]
+               {180, 30},
+               {120, 50},
+               {60, 30},
+               {10, 70}
+             ]
     end
   end
 end
