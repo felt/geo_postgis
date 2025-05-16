@@ -459,4 +459,8 @@ defmodule Geo.PostGIS do
   defmacro st_node(geometry) do
     quote do: fragment("ST_Node(?)", unquote(geometry))
   end
+
+  defmacro st_line_merge(geometry) do
+    quote do: fragment("ST_LineMerge(?)", unquote(geometry))
+  end
 end
