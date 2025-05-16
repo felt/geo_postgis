@@ -300,7 +300,7 @@ defmodule Geo.Ecto.Test do
     end
   end
 
-  describe "st_line_merge" do
+  describe "st_line_merge/1" do
     test "merge lines with different orientation" do
       multiline = %Geo.MultiLineString{
         coordinates: [
