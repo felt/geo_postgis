@@ -447,4 +447,38 @@ defmodule Geo.Ecto.Test do
       assert result.coordinates == {3.5, 4.5, 5.5}
     end
   end
+
+  describe "st_line_interpolate_points" do
+    test "returns points at specified fraction intervals along a linestring" do
+      # Construct a 9x9 square
+      points = [{-3, -3}, {-3, 3}, {3, 3}, {3, -3}, {-3, -3}]
+
+      [_first | expected_points] = points
+
+      line = %Geo.LineString{
+        coordinates: points,
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "test_line", geom: line})
+
+      # Query to find points at 25% intervals along the line
+      query =
+        from(l in LocationMulti,
+          where: l.name == "test_line",
+          select: st_line_interpolate_points(l.geom, 0.25, true)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.MultiPoint{} = result
+      assert length(result.coordinates) == 4
+
+      Enum.zip(result.coordinates, expected_points)
+      |> Enum.each(fn {{actual_x, actual_y}, {expected_x, expected_y}} ->
+        assert actual_x == expected_x
+        assert actual_y == expected_y
+      end)
+    end
+  end
 end
