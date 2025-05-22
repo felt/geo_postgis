@@ -447,4 +447,48 @@ defmodule Geo.Ecto.Test do
       assert result.coordinates == {3.5, 4.5, 5.5}
     end
   end
+
+  describe "st_line_interpolate_points" do
+    test "returns points at specified fraction intervals along a linestring" do
+      # Construct a 9x9 square
+      points = [{-3, -3}, {-3, 3}, {3, 3}, {3, -3}, {-3, -3}]
+
+      [_first | interval_points] = points
+
+      line = %Geo.LineString{
+        coordinates: points,
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "test_line", geom: line})
+
+      # Query to find points at repeating 25% intervals along the line
+      query =
+        from(l in LocationMulti,
+          where: l.name == "test_line",
+          select: st_line_interpolate_points(l.geom, 0.25, true)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.MultiPoint{} = result
+      assert length(result.coordinates) == 4
+
+      assert result.coordinates == interval_points
+
+      [first_interval_point | _rest] = interval_points
+
+      # Query to find only the first 25% interval point (non-repeating)
+      query =
+        from(l in LocationMulti,
+          where: l.name == "test_line",
+          select: st_line_interpolate_points(l.geom, 0.25, false)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.Point{} = result
+      assert result.coordinates == first_interval_point
+    end
+  end
 end
