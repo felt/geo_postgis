@@ -463,4 +463,8 @@ defmodule Geo.PostGIS do
   defmacro st_line_merge(geometry) do
     quote do: fragment("ST_LineMerge(?)", unquote(geometry))
   end
+
+  defmacro st_line_interpolate_point(geometry, fraction) do
+    quote do: fragment("ST_LineInterpolatePoint(?, ?)", unquote(geometry), unquote(fraction))
+  end
 end
