@@ -405,4 +405,46 @@ defmodule Geo.Ecto.Test do
       assert sorted_result == sorted_expected
     end
   end
+
+  describe "st_line_interpolate_point" do
+    test "interpolates point at specified fraction along a linestring" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {100, 200}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "test_line", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "test_line",
+          select: st_line_interpolate_point(location.geom, 0.2)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.Point{} = result
+      assert result.coordinates == {20.0, 40.0}
+    end
+
+    test "interpolate mid-point of a 3D line" do
+      line = %Geo.LineStringZ{
+        coordinates: [{1, 2, 3}, {4, 5, 6}, {6, 7, 8}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "test_line", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "test_line",
+          select: st_line_interpolate_point(location.geom, 0.5)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.PointZ{} = result
+      assert result.coordinates == {3.5, 4.5, 5.5}
+    end
+  end
 end
