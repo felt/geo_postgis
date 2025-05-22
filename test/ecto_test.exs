@@ -474,11 +474,7 @@ defmodule Geo.Ecto.Test do
       assert %Geo.MultiPoint{} = result
       assert length(result.coordinates) == 4
 
-      Enum.zip(result.coordinates, expected_points)
-      |> Enum.each(fn {{actual_x, actual_y}, {expected_x, expected_y}} ->
-        assert actual_x == expected_x
-        assert actual_y == expected_y
-      end)
+      assert result.coordinates == expected_points
     end
   end
 end
