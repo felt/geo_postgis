@@ -63,7 +63,12 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
     {:ok, _} = Postgrex.query(pid, "CREATE EXTENSION IF NOT EXISTS postgis", [])
 
     # Drop tables if they exist
-    {:ok, _} = Postgrex.query(pid, "DROP TABLE IF EXISTS places_geometry, places_geography, places_typed", [])
+    {:ok, _} =
+      Postgrex.query(
+        pid,
+        "DROP TABLE IF EXISTS places_geometry, places_geography, places_typed",
+        []
+      )
 
     # Create table with generic geometry column
     {:ok, _} =
@@ -99,6 +104,7 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
       )
 
     IO.puts("Database column types:")
+
     result.rows
     |> Enum.each(fn [table, column, type] ->
       IO.puts("  #{table}.#{column}: #{type}")
@@ -111,7 +117,11 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
 
   test "insert point with non-WGS84 SRID into geometry column" do
     google_maps_srid = 3857
-    location = %Geo.Point{coordinates: {50.091211805442974, 19.89650102357312}, srid: google_maps_srid}
+
+    location = %Geo.Point{
+      coordinates: {50.091211805442974, 19.89650102357312},
+      srid: google_maps_srid
+    }
 
     result =
       %{name: "Test Geometry", location: location}
@@ -122,6 +132,7 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
       {:ok, place} ->
         IO.puts("Successfully inserted into geometry column with SRID #{google_maps_srid}")
         assert place.location.srid == google_maps_srid
+
       {:error, error} ->
         IO.puts("Error inserting into geometry column: #{inspect(error)}")
         flunk("Failed to insert into geometry column: #{inspect(error)}")
@@ -130,7 +141,11 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
 
   test "insert point with non-WGS84 SRID into geography column" do
     google_maps_srid = 3857
-    location = %Geo.Point{coordinates: {50.091211805442974, 19.89650102357312}, srid: google_maps_srid}
+
+    location = %Geo.Point{
+      coordinates: {50.091211805442974, 19.89650102357312},
+      srid: google_maps_srid
+    }
 
     result =
       %{name: "Test Geography", location: location}
@@ -141,6 +156,7 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
     case result do
       {:ok, _} ->
         flunk("Expected to fail with geography column but succeeded")
+
       {:error, error} ->
         IO.puts("Error inserting into geography column: #{inspect(error)}")
         assert error != nil, "Expected an error with the geography column"
@@ -149,7 +165,11 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
 
   test "insert point with non-WGS84 SRID into typed geometry column" do
     google_maps_srid = 3857
-    location = %Geo.Point{coordinates: {50.091211805442974, 19.89650102357312}, srid: google_maps_srid}
+
+    location = %Geo.Point{
+      coordinates: {50.091211805442974, 19.89650102357312},
+      srid: google_maps_srid
+    }
 
     result =
       %{name: "Test Typed", location: location}
@@ -160,6 +180,7 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
       {:ok, place} ->
         IO.puts("Successfully inserted into typed geometry column")
         assert place.location.srid == 4326, "SRID should be transformed to 4326"
+
       {:error, error} ->
         IO.puts("Error inserting into typed geometry column: #{inspect(error)}")
     end
@@ -179,6 +200,7 @@ defmodule Geo.PostGIS.GeographyVsGeometryTest do
       {:ok, place} ->
         IO.puts("Successfully inserted into geography column with WGS84 SRID")
         assert place.location.srid == wgs84_srid
+
       {:error, error} ->
         IO.puts("Error inserting into geography column with WGS84: #{inspect(error)}")
         flunk("Failed to insert into geography column with WGS84: #{inspect(error)}")
