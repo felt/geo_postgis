@@ -827,4 +827,57 @@ defmodule Geo.Ecto.Test do
       assert result == false
     end
   end
+
+  describe "st_points/1" do
+    test "returns multipoint from a linestring" do
+      line_coords = [{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}]
+
+      line = %Geo.LineString{
+        coordinates: line_coords,
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "line_for_points", geom: line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "line_for_points",
+          select: st_points(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert %Geo.MultiPoint{} = result
+      assert length(result.coordinates) == 3
+
+      assert MapSet.new(line_coords) == MapSet.new(result.coordinates)
+    end
+
+    test "returns multipoint from a polygon" do
+      polygon_coords = [{0.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}, {2.0, 0.0}, {0.0, 0.0}]
+
+      polygon = %Geo.Polygon{
+        coordinates: [polygon_coords],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "polygon_for_points", geom: polygon})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "polygon_for_points",
+          select: st_points(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert %Geo.MultiPoint{} = result
+
+      # 5 coordinates expected including the equivalent overlapping start/end points
+      assert length(result.coordinates) == 5
+
+      [overlapping_vertex | _rest] = polygon_coords
+      assert Enum.count(result.coordinates, fn coord -> coord == overlapping_vertex end) == 2
+
+      assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
+    end
+  end
 end

@@ -303,6 +303,10 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_M(?)", unquote(geometry))
   end
 
+  defmacro st_points(geometry) do
+    quote do: fragment("ST_Points(?)", unquote(geometry))
+  end
+
   defmacro st_geom_from_text(text, srid \\ -1) do
     quote do: fragment("ST_GeomFromText(?, ?)", unquote(text), unquote(srid))
   end
