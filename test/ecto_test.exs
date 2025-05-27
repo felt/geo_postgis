@@ -567,4 +567,87 @@ defmodule Geo.Ecto.Test do
       assert result == 0.5
     end
   end
+
+  describe "st_line_substring" do
+    test "returns the first half of a line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {10, 10}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "substring_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "substring_test",
+          select: st_line_substring(location.geom, 0.0, 0.5)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{0.0, 0.0}, {5.0, 5.0}]
+    end
+
+    test "returns the second half of a line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {10, 10}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "substring_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "substring_test",
+          select: st_line_substring(location.geom, 0.5, 1.0)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{5.0, 5.0}, {10.0, 10.0}]
+    end
+
+    test "returns a middle section of a line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {10, 10}, {20, 0}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_segment_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "multi_segment_test",
+          select: st_line_substring(location.geom, 0.25, 0.75)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      # Should include the middle point (10,10) and interpolated points at 25% and 75%
+      assert result.coordinates == [{5.0, 5.0}, {10.0, 10.0}, {15.0, 5.0}]
+    end
+
+    test "returns a point when start and end fractions are the same" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {100, 100}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "point_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "point_test",
+          select: st_line_substring(location.geom, 0.42, 0.42)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.Point{} = result
+      assert result.coordinates == {42.0, 42.0}
+    end
+  end
 end
