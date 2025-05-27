@@ -139,7 +139,7 @@ defmodule MyApp.Repo.Migrations.EnablePostgis do
 end
 ```
 
-[PostGIS functions](http://postgis.net/docs/manual-1.3/ch06.html) can also be used in Ecto queries. Currently only the OpenGIS functions are implemented. Have a look at [lib/geo_postgis.ex](lib/geo_postgis.ex) for the implemented functions. You can use them like:
+[PostGIS functions](https://postgis.net/docs/reference.html) can also be used in Ecto queries. Currently only the OpenGIS functions are implemented. Have a look at [lib/geo_postgis.ex](lib/geo_postgis.ex) for the implemented functions. You can use them like:
 
 ```elixir
 defmodule Example do

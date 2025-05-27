@@ -1,7 +1,7 @@
 defmodule Geo.PostGIS do
   @moduledoc """
   PostGIS functions that can used in ecto queries
-  [PostGIS Function Documentation](http://postgis.net/docs/manual-1.3/ch06.html).
+  [PostGIS Function Documentation](https://postgis.net/docs/reference.html).
 
   Currently only the OpenGIS functions are implemented.
 
