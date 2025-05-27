@@ -231,6 +231,10 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_IsCollection(?)", unquote(geometry))
   end
 
+  defmacro st_is_empty(geometry) do
+    quote do: fragment("ST_IsEmpty(?)", unquote(geometry))
+  end
+
   defmacro st_is_ring(geometry) do
     quote do: fragment("ST_IsRing(?)", unquote(geometry))
   end

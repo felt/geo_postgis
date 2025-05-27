@@ -795,4 +795,36 @@ defmodule Geo.Ecto.Test do
       assert result == false
     end
   end
+
+  describe "st_is_empty/1" do
+    test "returns true for an empty geometry" do
+      empty_point = %Geo.Point{coordinates: nil, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "empty_point", geom: empty_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "empty_point",
+          select: st_is_empty(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns false for a non-empty geometry" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "non_empty", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "non_empty",
+          select: st_is_empty(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+  end
 end
