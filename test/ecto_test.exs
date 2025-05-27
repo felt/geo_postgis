@@ -491,4 +491,80 @@ defmodule Geo.Ecto.Test do
       assert result.coordinates == first_interval_point
     end
   end
+
+  describe "st_line_locate_point" do
+    test "returns 0.0 for point at start of line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {1, 1}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "start_point_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "start_point_test",
+          select: st_line_locate_point(location.geom, st_set_srid(st_point(0, 0), 4326))
+        )
+
+      result = Repo.one(query)
+      assert result == 0.0
+    end
+
+    test "returns 1.0 for point at end of line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {1, 1}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "end_point_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "end_point_test",
+          select: st_line_locate_point(location.geom, st_set_srid(st_point(1, 1), 4326))
+        )
+
+      result = Repo.one(query)
+      assert result == 1.0
+    end
+
+    test "returns 0.5 for point at middle of line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {10, 10}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "mid_point_test", geom: line})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "mid_point_test",
+          select: st_line_locate_point(location.geom, st_set_srid(st_point(5, 5), 4326))
+        )
+
+      result = Repo.one(query)
+      assert result == 0.5
+    end
+
+    test "returns closest point fraction for point not on line" do
+      line = %Geo.LineString{
+        coordinates: [{0, 0}, {10, 0}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "off_line_test", geom: line})
+
+      # Point at (5,5) - directly above the midpoint of the line
+      query =
+        from(location in LocationMulti,
+          where: location.name == "off_line_test",
+          select: st_line_locate_point(location.geom, st_set_srid(st_point(5, 5), 4326))
+        )
+
+      result = Repo.one(query)
+      # The closest point should be at the midpoint of the line
+      assert result == 0.5
+    end
+  end
 end

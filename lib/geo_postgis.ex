@@ -477,4 +477,8 @@ defmodule Geo.PostGIS do
               unquote(repeat)
             )
   end
+
+  defmacro st_line_locate_point(lineGeometry, pointGeometry) do
+    quote do: fragment("ST_LineLocatePoint(?, ?)", unquote(lineGeometry), unquote(pointGeometry))
+  end
 end
