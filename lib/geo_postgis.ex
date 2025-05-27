@@ -227,6 +227,10 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_IsClosed(?)", unquote(geometry))
   end
 
+  defmacro st_is_collection(geometry) do
+    quote do: fragment("ST_IsCollection(?)", unquote(geometry))
+  end
+
   defmacro st_is_ring(geometry) do
     quote do: fragment("ST_IsRing(?)", unquote(geometry))
   end

@@ -739,4 +739,60 @@ defmodule Geo.Ecto.Test do
       assert result.coordinates == {42.0, 42.0}
     end
   end
+
+  describe "st_is_collection/1" do
+    test "returns true for a geometry collection" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0, 0}, srid: 4326},
+          %Geo.LineString{coordinates: [{0, 0}, {1, 1}], srid: 4326}
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns true for a multi-geometry" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [{0, 0}, {1, 1}, {2, 2}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns false for a simple geometry" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "point",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+  end
 end
