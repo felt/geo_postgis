@@ -467,4 +467,14 @@ defmodule Geo.PostGIS do
   defmacro st_line_interpolate_point(geometry, fraction) do
     quote do: fragment("ST_LineInterpolatePoint(?, ?)", unquote(geometry), unquote(fraction))
   end
+
+  defmacro st_line_interpolate_points(geometry, fraction, repeat) do
+    quote do:
+            fragment(
+              "ST_LineInterpolatePoints(?, ?, ?)",
+              unquote(geometry),
+              unquote(fraction),
+              unquote(repeat)
+            )
+  end
 end
