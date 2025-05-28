@@ -235,6 +235,95 @@ defmodule Geo.Ecto.Test do
     assert m2.geom == geom2
   end
 
+  describe "st_is_closed/1" do
+    test "returns true for a closed linestring" do
+      closed_line = %Geo.LineString{
+        coordinates: [{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "closed_line", geom: closed_line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "closed_line",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns false for an open linestring" do
+      open_line = %Geo.LineString{
+        coordinates: [{0, 0}, {1, 0}, {1, 1}, {0, 1}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "open_line", geom: open_line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "open_line",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+
+    test "returns false for a multilinestring" do
+      open_line = %Geo.MultiLineString{
+        coordinates: [
+          [{0, 0}, {1, 0}, {1, 1}, {0, 0}],
+          [{0, 0}, {1, 0}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multilinestring", geom: open_line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multilinestring",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+
+    test "returns true for a point" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "point",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns true for a multipoint" do
+      point = %Geo.MultiPoint{coordinates: [{0, 0}, {1, 1}], srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "multipoint", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multipoint",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+  end
+
   describe "st_node" do
     test "self-intersecting linestring" do
       coordinates = [{0, 0, 0}, {2, 2, 2}, {0, 2, 0}, {2, 0, 2}]
