@@ -94,17 +94,13 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def cast(%{type: type, coordinates: _} = geom) when type in @types do
-      case Geo.PostGIS.Config.json_library().encode(geom) do
-        {:ok, geom} when is_binary(geom) -> do_cast(geom)
-        {:error, reason} -> {:error, [message: "failed to encode JSON", reason: reason]}
-      end
+      string_keys(geom)
+      |> do_cast()
     end
 
     def cast(%{type: "GeometryCollection", geometries: _} = geom) do
-      case Geo.PostGIS.Config.json_library().encode(geom) do
-        {:ok, geom} when is_binary(geom) -> do_cast(geom)
-        {:error, reason} -> {:error, [message: "failed to encode JSON", reason: reason]}
-      end
+      string_keys(geom)
+      |> do_cast()
     end
 
     def cast(geom) when is_binary(geom) do
@@ -112,6 +108,16 @@ if Code.ensure_loaded?(Ecto.Type) do
     end
 
     def cast(_), do: :error
+
+    def string_keys(input_map) when is_map(input_map) do
+      Map.new(input_map, fn {key, val} -> {to_string(key), string_keys(val)} end)
+    end
+
+    def string_keys(input_list) when is_list(input_list) do
+      Enum.map(input_list, &string_keys(&1))
+    end
+
+    def string_keys(other), do: other
 
     defp do_cast(geom) when is_binary(geom) do
       case Geo.PostGIS.Config.json_library().decode(geom) do
