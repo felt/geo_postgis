@@ -272,6 +272,27 @@ defmodule Geo.Ecto.Test do
       assert result == false
     end
 
+    test "returns false for a multilinestring" do
+      open_line = %Geo.MultiLineString{
+        coordinates: [
+          [{0, 0}, {1, 0}, {1, 1}, {0, 0}],
+          [{0, 0}, {1, 0}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multilinestring", geom: open_line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multilinestring",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+
     test "returns true for a point" do
       point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
 
