@@ -271,6 +271,21 @@ defmodule Geo.Ecto.Test do
       result = Repo.one(query)
       assert result == false
     end
+
+    test "returns true for a point" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "point",
+          select: st_is_closed(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
   end
 
   describe "st_node" do
