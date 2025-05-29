@@ -658,6 +658,24 @@ defmodule Geo.Ecto.Test do
   end
 
   describe "st_dump" do
+    test "atomic geometry is returned directly" do
+      point = %Geo.Point{
+        coordinates: {0.0, 0.0},
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "point",
+          select: st_dump(location.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == {[], point}
+    end
+
     test "breaks a multipolygon into its constituent polygons" do
       polygon1 = %Geo.Polygon{
         coordinates: [[{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}]],
