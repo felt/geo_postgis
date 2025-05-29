@@ -657,6 +657,50 @@ defmodule Geo.Ecto.Test do
     end
   end
 
+  describe "st_dump" do
+    test "breaks a multipolygon into its constituent polygons" do
+      polygon1 = %Geo.Polygon{
+        coordinates: [[{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}]],
+        srid: 4326
+      }
+
+      polygon2 = %Geo.Polygon{
+        coordinates: [[{2.0, 2.0}, {2.0, 3.0}, {3.0, 3.0}, {3.0, 2.0}, {2.0, 2.0}]],
+        srid: 4326
+      }
+
+      multipolygon = %Geo.MultiPolygon{
+        coordinates: [polygon1.coordinates, polygon2.coordinates],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multipolygon", geom: multipolygon})
+
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "multipolygon",
+          select: st_dump(location.geom)
+        )
+
+      results = Repo.all(query)
+
+      assert length(results) == 2
+
+      IO.inspect(results)
+
+      Enum.each(results, fn {_path, geom} ->
+        assert %Geo.Polygon{} = geom
+      end)
+
+      expected_polygons = MapSet.new([polygon1, polygon2])
+
+      actual_polygons = MapSet.new(Enum.map(results, fn {_path, geom} -> geom end))
+
+      assert MapSet.equal?(expected_polygons, actual_polygons)
+    end
+  end
+
   describe "st_line_substring" do
     test "returns the first half of a line" do
       line = %Geo.LineString{
