@@ -657,6 +657,62 @@ defmodule Geo.Ecto.Test do
     end
   end
 
+  describe "st_dump" do
+    test "atomic geometry is returned directly" do
+      point = %Geo.Point{
+        coordinates: {0.0, 0.0},
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "point",
+          select: st_dump(location.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == {[], point}
+    end
+
+    test "breaks a multipolygon into its constituent polygons" do
+      polygon1 = %Geo.Polygon{
+        coordinates: [[{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}]],
+        srid: 4326
+      }
+
+      polygon2 = %Geo.Polygon{
+        coordinates: [[{2.0, 2.0}, {2.0, 3.0}, {3.0, 3.0}, {3.0, 2.0}, {2.0, 2.0}]],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "polygon1", geom: polygon1})
+      Repo.insert(%LocationMulti{name: "polygon2", geom: polygon2})
+
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name in ["polygon1", "polygon2"],
+          select: st_dump(st_collect(location.geom))
+        )
+
+      results = Repo.all(query)
+
+      assert length(results) == 2
+
+      Enum.each(results, fn {_path, geom} ->
+        assert %Geo.Polygon{} = geom
+      end)
+
+      expected_polygons = MapSet.new([polygon1, polygon2])
+
+      actual_polygons = MapSet.new(Enum.map(results, fn {_path, geom} -> geom end))
+
+      assert MapSet.equal?(expected_polygons, actual_polygons)
+    end
+  end
+
   describe "st_line_substring" do
     test "returns the first half of a line" do
       line = %Geo.LineString{
