@@ -669,25 +669,19 @@ defmodule Geo.Ecto.Test do
         srid: 4326
       }
 
-      multipolygon = %Geo.MultiPolygon{
-        coordinates: [polygon1.coordinates, polygon2.coordinates],
-        srid: 4326
-      }
-
-      Repo.insert(%LocationMulti{name: "multipolygon", geom: multipolygon})
+      Repo.insert(%LocationMulti{name: "polygon1", geom: polygon1})
+      Repo.insert(%LocationMulti{name: "polygon2", geom: polygon2})
 
       query =
         from(
           location in LocationMulti,
-          where: location.name == "multipolygon",
-          select: st_dump(location.geom)
+          where: location.name in ["polygon1", "polygon2"],
+          select: st_dump(st_collect(location.geom))
         )
 
       results = Repo.all(query)
 
       assert length(results) == 2
-
-      IO.inspect(results)
 
       Enum.each(results, fn {_path, geom} ->
         assert %Geo.Polygon{} = geom
