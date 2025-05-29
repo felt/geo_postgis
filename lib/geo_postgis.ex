@@ -464,6 +464,11 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_LineMerge(?)", unquote(geometry))
   end
 
+  @spec st_line_merge(Geo.MultiLineString.t(), boolean()) :: term()
+  defmacro st_line_merge(geometry, directed) do
+    quote do: fragment("ST_LineMerge(?, ?)", unquote(geometry), unquote(directed))
+  end
+
   defmacro st_line_interpolate_point(geometry, fraction) do
     quote do: fragment("ST_LineInterpolatePoint(?, ?)", unquote(geometry), unquote(fraction))
   end

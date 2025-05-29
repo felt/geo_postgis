@@ -495,6 +495,75 @@ defmodule Geo.Ecto.Test do
     end
   end
 
+  describe "st_line_merge/2" do
+    test "lines with opposite directions not merged if directed is true" do
+      multiline = %Geo.MultiLineString{
+        coordinates: [
+          [{60, 30}, {10, 70}],
+          [{120, 50}, {60, 30}],
+          [{120, 50}, {180, 30}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "lines with direction", geom: multiline})
+
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "lines with direction",
+          select: st_line_merge(location.geom, true)
+        )
+
+      result = Repo.one(query)
+
+      # Verify the result is still a MultiLineString with only 2 lines merged
+      assert %Geo.MultiLineString{} = result
+      assert length(result.coordinates) == 2
+
+      expected_linestrings = [
+        [{120, 50}, {60, 30}, {10, 70}],
+        [{120, 50}, {180, 30}]
+      ]
+
+      sorted_result = Enum.sort_by(result.coordinates, fn linestring -> hd(linestring) end)
+      sorted_expected = Enum.sort_by(expected_linestrings, fn linestring -> hd(linestring) end)
+
+      assert sorted_result == sorted_expected
+    end
+
+    test "lines with opposite directions merged if directed is false" do
+      multiline = %Geo.MultiLineString{
+        coordinates: [
+          [{60, 30}, {10, 70}],
+          [{120, 50}, {60, 30}],
+          [{120, 50}, {180, 30}]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "lines with direction", geom: multiline})
+
+      query =
+        from(
+          location in LocationMulti,
+          where: location.name == "lines with direction",
+          select: st_line_merge(location.geom, false)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+
+      assert result.coordinates == [
+               {180, 30},
+               {120, 50},
+               {60, 30},
+               {10, 70}
+             ]
+    end
+  end
+
   describe "st_line_interpolate_point" do
     test "interpolates point at specified fraction along a linestring" do
       line = %Geo.LineString{
