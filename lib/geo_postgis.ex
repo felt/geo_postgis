@@ -227,6 +227,14 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_IsClosed(?)", unquote(geometry))
   end
 
+  defmacro st_is_collection(geometry) do
+    quote do: fragment("ST_IsCollection(?)", unquote(geometry))
+  end
+
+  defmacro st_is_empty(geometry) do
+    quote do: fragment("ST_IsEmpty(?)", unquote(geometry))
+  end
+
   defmacro st_is_ring(geometry) do
     quote do: fragment("ST_IsRing(?)", unquote(geometry))
   end
@@ -293,6 +301,10 @@ defmodule Geo.PostGIS do
 
   defmacro st_m(geometry) do
     quote do: fragment("ST_M(?)", unquote(geometry))
+  end
+
+  defmacro st_points(geometry) do
+    quote do: fragment("ST_Points(?)", unquote(geometry))
   end
 
   defmacro st_geom_from_text(text, srid \\ -1) do

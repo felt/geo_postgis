@@ -864,4 +864,145 @@ defmodule Geo.Ecto.Test do
       assert result.coordinates == {42.0, 42.0}
     end
   end
+
+  describe "st_is_collection/1" do
+    test "returns true for a geometry collection" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0, 0}, srid: 4326},
+          %Geo.LineString{coordinates: [{0, 0}, {1, 1}], srid: 4326}
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns true for a multi-geometry" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [{0, 0}, {1, 1}, {2, 2}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns false for a simple geometry" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "point",
+          select: st_is_collection(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+  end
+
+  describe "st_is_empty/1" do
+    test "returns true for an empty geometry" do
+      empty_point = %Geo.Point{coordinates: nil, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "empty_point", geom: empty_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "empty_point",
+          select: st_is_empty(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == true
+    end
+
+    test "returns false for a non-empty geometry" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "non_empty", geom: point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "non_empty",
+          select: st_is_empty(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == false
+    end
+  end
+
+  describe "st_points/1" do
+    test "returns multipoint from a linestring" do
+      line_coords = [{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}]
+
+      line = %Geo.LineString{
+        coordinates: line_coords,
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "line_for_points", geom: line})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "line_for_points",
+          select: st_points(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert %Geo.MultiPoint{} = result
+      assert length(result.coordinates) == 3
+
+      assert MapSet.new(line_coords) == MapSet.new(result.coordinates)
+    end
+
+    test "returns multipoint from a polygon" do
+      polygon_coords = [{0.0, 0.0}, {0.0, 2.0}, {2.0, 2.0}, {2.0, 0.0}, {0.0, 0.0}]
+
+      polygon = %Geo.Polygon{
+        coordinates: [polygon_coords],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "polygon_for_points", geom: polygon})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "polygon_for_points",
+          select: st_points(l.geom)
+        )
+
+      result = Repo.one(query)
+      assert %Geo.MultiPoint{} = result
+
+      # 5 coordinates expected including the equivalent overlapping start/end points
+      assert length(result.coordinates) == 5
+
+      [overlapping_vertex | _rest] = polygon_coords
+      assert Enum.count(result.coordinates, fn coord -> coord == overlapping_vertex end) == 2
+
+      assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
+    end
+  end
 end
