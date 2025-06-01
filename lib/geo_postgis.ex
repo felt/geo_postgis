@@ -491,4 +491,8 @@ defmodule Geo.PostGIS do
               unquote(endFraction)
             )
   end
+
+  defmacro st_dump(geometry) do
+    quote do: fragment("ST_Dump(?)", unquote(geometry))
+  end
 end
