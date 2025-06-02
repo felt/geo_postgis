@@ -953,6 +953,53 @@ defmodule Geo.Ecto.Test do
     end
   end
 
+  describe "st_n_dims/1" do
+    test "returns 2 for a 2D point" do
+      point = %Geo.Point{coordinates: {1, 1}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "2d_point", geom: point})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "2d_point",
+          select: st_n_dims(location.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == 2
+    end
+
+    test "returns 3 for a 3D point" do
+      point_3d = %Geo.PointZ{coordinates: {1, 1, 2}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "3d_point", geom: point_3d})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "3d_point",
+          select: st_n_dims(location.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == 3
+    end
+
+    test "returns 4 for a 3D point with measure" do
+      point_3dm = %Geo.PointZM{coordinates: {1, 1, 2, 3}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "3dm_point", geom: point_3dm})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "3dm_point",
+          select: st_n_dims(location.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == 4
+    end
+  end
+
   describe "st_points/1" do
     test "returns multipoint from a linestring" do
       line_coords = [{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}]
