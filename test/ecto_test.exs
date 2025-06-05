@@ -895,14 +895,25 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
 
-      query =
+      query_inspect =
         from(l in LocationMulti,
           where: l.name == "multi_point",
-          select: st_is_collection(st_make_valid(l.geom))
+          select: %{
+            original_ewkt: fragment("ST_AsEWKT(?)", l.geom),
+            original_is_valid: st_is_valid(l.geom),
+            original_is_collection: st_is_collection(l.geom),
+            original_geom_type: fragment("ST_GeometryType(?)", l.geom),
+            made_valid_ewkt: fragment("ST_AsEWKT(ST_MakeValid(?))", l.geom),
+            made_valid_is_collection: st_is_collection(st_make_valid(l.geom)),
+            made_valid_geom_type: fragment("ST_GeometryType(ST_MakeValid(?))", l.geom)
+          }
         )
 
-      result = Repo.one(query)
-      assert result == true
+      inspection_result = Repo.one(query_inspect)
+
+      IO.inspect(inspection_result, label: "MultiPoint Inspection CI Details")
+
+      assert inspection_result.made_valid_is_collection == true
     end
 
     test "returns false for a simple geometry" do
