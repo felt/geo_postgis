@@ -919,31 +919,72 @@ defmodule Geo.Ecto.Test do
       opts = Geo.Test.Helper.opts()
       {:ok, pid} = Postgrex.start_link(opts)
 
-      on_exit fn -> Postgrex.query!(pid, "DROP TABLE IF EXISTS problematic_multipoint_raw_test", []) end
+      on_exit(fn ->
+        Postgrex.query!(pid, "DROP TABLE IF EXISTS problematic_multipoint_raw_test", [])
+      end)
 
-      Postgrex.query!(pid, "CREATE TEMP TABLE problematic_multipoint_raw_test (id SERIAL PRIMARY KEY, geom GEOMETRY(MultiPoint, 4326))", [])
-      Postgrex.query!(pid, "INSERT INTO problematic_multipoint_raw_test (geom) VALUES (ST_GeomFromEWKT('SRID=4326;MULTIPOINT(0 0,1 1,2 2)'))", [])
+      Postgrex.query!(
+        pid,
+        "CREATE TEMP TABLE problematic_multipoint_raw_test (id SERIAL PRIMARY KEY, geom GEOMETRY(MultiPoint, 4326))",
+        []
+      )
+
+      Postgrex.query!(
+        pid,
+        "INSERT INTO problematic_multipoint_raw_test (geom) VALUES (ST_GeomFromEWKT('SRID=4326;MULTIPOINT(0 0,1 1,2 2)'))",
+        []
+      )
 
       # Verify ST_IsValid
-      {:ok, %Postgrex.Result{rows: [[is_valid]]}} = Postgrex.query(pid, "SELECT ST_IsValid(geom) FROM problematic_multipoint_raw_test WHERE id = 1", [])
+      {:ok, %Postgrex.Result{rows: [[is_valid]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_IsValid(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
       assert is_valid == true
 
       # Verify ST_GeometryType
-      {:ok, %Postgrex.Result{rows: [[geom_type]]}} = Postgrex.query(pid, "SELECT ST_GeometryType(geom) FROM problematic_multipoint_raw_test WHERE id = 1", [])
+      {:ok, %Postgrex.Result{rows: [[geom_type]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_GeometryType(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
       assert geom_type == "ST_MultiPoint"
 
-      err = assert_raise Postgrex.Error, fn ->
-        Postgrex.query!(pid, "SELECT ST_IsCollection(geom) FROM problematic_multipoint_raw_test WHERE id = 1", [])
-      end
-      IO.inspect(err, label: "Raw SQL ST_IsCollection(geom) Error Details")
-      assert err.postgres.code == "XX000" # internal_error
+      err =
+        assert_raise Postgrex.Error, fn ->
+          Postgrex.query!(
+            pid,
+            "SELECT ST_IsCollection(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+            []
+          )
+        end
 
-      {:ok, %Postgrex.Result{rows: [[is_collection_made_valid]]}} = Postgrex.query(pid, "SELECT ST_IsCollection(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1", [])
+      IO.inspect(err, label: "Raw SQL ST_IsCollection(geom) Error Details")
+      # internal_error
+      assert err.postgres.code == "XX000"
+
+      {:ok, %Postgrex.Result{rows: [[is_collection_made_valid]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_IsCollection(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
       assert is_collection_made_valid == true
 
       # Verify EWKTs are the same
       {:ok, %Postgrex.Result{rows: [[original_ewkt, made_valid_ewkt]]}} =
-        Postgrex.query(pid, "SELECT ST_AsEWKT(geom), ST_AsEWKT(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1", [])
+        Postgrex.query(
+          pid,
+          "SELECT ST_AsEWKT(geom), ST_AsEWKT(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
       assert original_ewkt == made_valid_ewkt
       assert original_ewkt == "SRID=4326;MULTIPOINT(0 0,1 1,2 2)"
     end
