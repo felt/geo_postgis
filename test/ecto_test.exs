@@ -919,6 +919,46 @@ defmodule Geo.Ecto.Test do
       result = Repo.one(query)
       assert result == false
     end
+
+    test "checks the validity of a geometry collection" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0, 0}, srid: 4326},
+          %Geo.LineString{coordinates: [{0, 0}, {1, 1}], srid: 4326}
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_is_valid(l.geom)
+        )
+
+      result = Repo.one(query)
+      IO.inspect({:collection, result})
+    end
+
+    test "checks the validity of a multi-geometry" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [{0, 0}, {1, 1}, {2, 2}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_is_valid(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      IO.inspect({:multi_point, result})
+    end
   end
 
   describe "st_is_empty/1" do
