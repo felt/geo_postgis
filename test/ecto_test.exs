@@ -901,7 +901,6 @@ defmodule Geo.Ecto.Test do
           select: %{
             original_ewkt: fragment("ST_AsEWKT(?)", l.geom),
             original_is_valid: st_is_valid(l.geom),
-            original_is_collection: st_is_collection(l.geom),
             original_geom_type: fragment("ST_GeometryType(?)", l.geom),
             made_valid_ewkt: fragment("ST_AsEWKT(ST_MakeValid(?))", l.geom),
             made_valid_is_collection: st_is_collection(st_make_valid(l.geom)),
