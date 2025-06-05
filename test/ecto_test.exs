@@ -955,6 +955,31 @@ defmodule Geo.Ecto.Test do
 
       assert geom_type == "ST_MultiPoint"
 
+      # Check individual points within the MultiPoint
+      dump_points_query = """
+      SELECT path[1] as point_index,
+             ST_IsValid(geom) as point_is_valid,
+             ST_GeometryType(geom) as point_geom_type,
+             ST_AsEWKT(geom) as point_ewkt
+      FROM (
+          SELECT (ST_DumpPoints(geom)).* FROM problematic_multipoint_raw_test WHERE id = 1
+      ) AS dumped_points;
+      """
+      {:ok, %Postgrex.Result{rows: dumped_points_rows}} = Postgrex.query(pid, dump_points_query, [])
+
+      IO.inspect(dumped_points_rows, label: "Raw SQL ST_DumpPoints Details")
+
+      for [point_index, point_is_valid, point_geom_type, point_ewkt] <- dumped_points_rows do
+        IO.inspect(%{
+          point_index: point_index,
+          point_is_valid: point_is_valid,
+          point_geom_type: point_geom_type,
+          point_ewkt: point_ewkt
+        }, label: "Inspecting Dumped Point")
+        assert point_is_valid == true
+        assert point_geom_type == "ST_Point"
+      end
+
       err =
         assert_raise Postgrex.Error, fn ->
           Postgrex.query!(
