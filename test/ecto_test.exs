@@ -880,7 +880,7 @@ defmodule Geo.Ecto.Test do
       query =
         from(l in LocationMulti,
           where: l.name == "collection",
-          select: st_is_collection(l.geom)
+          select: st_is_collection(st_make_valid(l.geom))
         )
 
       result = Repo.one(query)
