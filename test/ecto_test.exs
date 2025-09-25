@@ -895,14 +895,129 @@ defmodule Geo.Ecto.Test do
 
       Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
 
-      query =
+      query_inspect =
         from(l in LocationMulti,
           where: l.name == "multi_point",
-          select: st_is_collection(st_make_valid(l.geom))
+          select: %{
+            original_ewkt: fragment("ST_AsEWKT(?)", l.geom),
+            original_is_valid: st_is_valid(l.geom),
+            original_geom_type: fragment("ST_GeometryType(?)", l.geom),
+            made_valid_ewkt: fragment("ST_AsEWKT(ST_MakeValid(?))", l.geom),
+            made_valid_is_collection: st_is_collection(st_make_valid(l.geom)),
+            made_valid_geom_type: fragment("ST_GeometryType(ST_MakeValid(?))", l.geom)
+          }
         )
 
-      result = Repo.one(query)
-      assert result == true
+      inspection_result = Repo.one(query_inspect)
+
+      IO.inspect(inspection_result, label: "MultiPoint Inspection CI Details")
+
+      assert inspection_result.made_valid_is_collection == true
+    end
+
+    test "raw SQL investigation of MultiPoint ST_IsCollection issue" do
+      opts = Geo.Test.Helper.opts()
+      {:ok, pid} = Postgrex.start_link(opts)
+
+      on_exit(fn ->
+        Postgrex.query!(pid, "DROP TABLE IF EXISTS problematic_multipoint_raw_test", [])
+      end)
+
+      Postgrex.query!(
+        pid,
+        "CREATE TEMP TABLE problematic_multipoint_raw_test (id SERIAL PRIMARY KEY, geom GEOMETRY(MultiPoint, 4326))",
+        []
+      )
+
+      Postgrex.query!(
+        pid,
+        "INSERT INTO problematic_multipoint_raw_test (geom) VALUES (ST_GeomFromEWKT('SRID=4326;MULTIPOINT(0 0,1 1,2 2)'))",
+        []
+      )
+
+      # Verify ST_IsValid
+      {:ok, %Postgrex.Result{rows: [[is_valid]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_IsValid(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
+      assert is_valid == true
+
+      # Verify ST_GeometryType
+      {:ok, %Postgrex.Result{rows: [[geom_type]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_GeometryType(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
+      assert geom_type == "ST_MultiPoint"
+
+      # Check individual points within the MultiPoint
+      dump_points_query = """
+      SELECT path[1] as point_index,
+             ST_IsValid(geom) as point_is_valid,
+             ST_GeometryType(geom) as point_geom_type,
+             ST_AsEWKT(geom) as point_ewkt
+      FROM (
+          SELECT (ST_DumpPoints(geom)).* FROM problematic_multipoint_raw_test WHERE id = 1
+      ) AS dumped_points;
+      """
+
+      {:ok, %Postgrex.Result{rows: dumped_points_rows}} =
+        Postgrex.query(pid, dump_points_query, [])
+
+      IO.inspect(dumped_points_rows, label: "Raw SQL ST_DumpPoints Details")
+
+      for [point_index, point_is_valid, point_geom_type, point_ewkt] <- dumped_points_rows do
+        IO.inspect(
+          %{
+            point_index: point_index,
+            point_is_valid: point_is_valid,
+            point_geom_type: point_geom_type,
+            point_ewkt: point_ewkt
+          },
+          label: "Inspecting Dumped Point"
+        )
+
+        assert point_is_valid == true
+        assert point_geom_type == "ST_Point"
+      end
+
+      err =
+        assert_raise Postgrex.Error, fn ->
+          Postgrex.query!(
+            pid,
+            "SELECT ST_IsCollection(geom) FROM problematic_multipoint_raw_test WHERE id = 1",
+            []
+          )
+        end
+
+      IO.inspect(err, label: "Raw SQL ST_IsCollection(geom) Error Details")
+      # internal_error
+      assert err.postgres.code == "XX000"
+
+      {:ok, %Postgrex.Result{rows: [[is_collection_made_valid]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_IsCollection(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
+      assert is_collection_made_valid == true
+
+      # Verify EWKTs are the same
+      {:ok, %Postgrex.Result{rows: [[original_ewkt, made_valid_ewkt]]}} =
+        Postgrex.query(
+          pid,
+          "SELECT ST_AsEWKT(geom), ST_AsEWKT(ST_MakeValid(geom)) FROM problematic_multipoint_raw_test WHERE id = 1",
+          []
+        )
+
+      assert original_ewkt == made_valid_ewkt
+      assert original_ewkt == "SRID=4326;MULTIPOINT(0 0,1 1,2 2)"
     end
 
     test "returns false for a simple geometry" do
@@ -918,6 +1033,46 @@ defmodule Geo.Ecto.Test do
 
       result = Repo.one(query)
       assert result == false
+    end
+
+    test "checks the validity of a geometry collection" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0, 0}, srid: 4326},
+          %Geo.LineString{coordinates: [{0, 0}, {1, 1}], srid: 4326}
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_is_valid(l.geom)
+        )
+
+      result = Repo.one(query)
+      IO.inspect({:collection, result})
+    end
+
+    test "checks the validity of a multi-geometry" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [{0, 0}, {1, 1}, {2, 2}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_is_valid(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      IO.inspect({:multi_point, result})
     end
   end
 
