@@ -1005,4 +1005,27 @@ defmodule Geo.Ecto.Test do
       assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
     end
   end
+
+  describe "st_line_from_multipoint/1" do
+    test "creates a linestring from a multipoint and preserves coordinate order" do
+      multipoint = %Geo.MultiPoint{
+        coordinates: [{1, 2}, {3, 4}, {5, 6}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multipoint_to_line", geom: multipoint})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multipoint_to_line",
+          select: st_line_from_multipoint(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}]
+      assert result.srid == 4326
+    end
+  end
 end
