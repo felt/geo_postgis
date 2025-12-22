@@ -1008,6 +1008,9 @@ defmodule Geo.Ecto.Test do
 
   describe "st_point_z/3 and st_point_z/4" do
     test "creates a 3D point without SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
       query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4), limit: 1)
 
       result = Repo.one(query)
@@ -1017,6 +1020,9 @@ defmodule Geo.Ecto.Test do
     end
 
     test "creates a 3D point with SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
       query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4, 4326), limit: 1)
 
       result = Repo.one(query)
