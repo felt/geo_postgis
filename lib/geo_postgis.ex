@@ -259,6 +259,14 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_Point(?, ?)", unquote(x), unquote(y))
   end
 
+  defmacro st_point_z(x, y, z) do
+    quote do: fragment("ST_PointZ(?, ?, ?)", unquote(x), unquote(y), unquote(z))
+  end
+
+  defmacro st_point_z(x, y, z, srid) do
+    quote do: fragment("ST_PointZ(?, ?, ?, ?)", unquote(x), unquote(y), unquote(z), unquote(srid))
+  end
+
   defmacro st_exterior_ring(geometry) do
     quote do: fragment("ST_ExteriorRing(?)", unquote(geometry))
   end

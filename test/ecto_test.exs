@@ -1005,4 +1005,24 @@ defmodule Geo.Ecto.Test do
       assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
     end
   end
+
+  describe "st_point_z/3 and st_point_z/4" do
+    test "creates a 3D point without SRID" do
+      query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZ{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == nil
+    end
+
+    test "creates a 3D point with SRID" do
+      query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4, 4326), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZ{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == 4326
+    end
+  end
 end
