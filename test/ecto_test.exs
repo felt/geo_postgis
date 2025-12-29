@@ -1005,4 +1005,83 @@ defmodule Geo.Ecto.Test do
       assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
     end
   end
+
+  describe "st_point_z/3 and st_point_z/4" do
+    test "creates a 3D point without SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZ{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == nil
+    end
+
+    test "creates a 3D point with SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query = from(l in LocationMulti, select: st_point_z(-71.104, 42.315, 3.4, 4326), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZ{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == 4326
+    end
+  end
+
+  describe "st_point_m/3 and st_point_m/4" do
+    test "creates a point with M coordinate without SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query = from(l in LocationMulti, select: st_point_m(-71.104, 42.315, 3.4), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointM{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == nil
+    end
+
+    test "creates a point with M coordinate with SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query = from(l in LocationMulti, select: st_point_m(-71.104, 42.315, 3.4, 4326), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointM{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4}
+      assert result.srid == 4326
+    end
+  end
+
+  describe "st_point_zm/4 and st_point_zm/5" do
+    test "creates a 4D point without SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query = from(l in LocationMulti, select: st_point_zm(-71.104, 42.315, 3.4, 4.5), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZM{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4, 4.5}
+      assert result.srid == nil
+    end
+
+    test "creates a 4D point with SRID" do
+      point = %Geo.Point{coordinates: {0, 0}, srid: 4326}
+      Repo.insert(%LocationMulti{name: "empty", geom: point})
+
+      query =
+        from(l in LocationMulti, select: st_point_zm(-71.104, 42.315, 3.4, 4.5, 4326), limit: 1)
+
+      result = Repo.one(query)
+      assert %Geo.PointZM{} = result
+      assert result.coordinates == {-71.104, 42.315, 3.4, 4.5}
+      assert result.srid == 4326
+    end
+  end
 end
