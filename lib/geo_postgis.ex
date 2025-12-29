@@ -445,6 +445,18 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_MakePoint(?, ?, ?, ?)", unquote(x), unquote(y), unquote(z), unquote(m))
   end
 
+  defmacro st_line_from_multipoint(multipoint) do
+    quote do: fragment("ST_LineFromMultiPoint(?)", unquote(multipoint))
+  end
+
+  defmacro st_make_line(geom1, geom2) do
+    quote do: fragment("ST_MakeLine(?, ?)", unquote(geom1), unquote(geom2))
+  end
+
+  defmacro st_make_line(geoms) do
+    quote do: fragment("ST_MakeLine(?)", unquote(geoms))
+  end
+
   defmacro st_make_envelope(xMin, yMin, xMax, yMax) do
     quote do:
             fragment(
