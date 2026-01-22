@@ -1005,4 +1005,91 @@ defmodule Geo.Ecto.Test do
       assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
     end
   end
+
+  describe "st_line_from_multipoint/1" do
+    test "creates a linestring from a multipoint and preserves coordinate order" do
+      multipoint = %Geo.MultiPoint{
+        coordinates: [{1, 2}, {3, 4}, {5, 6}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multipoint_to_line", geom: multipoint})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multipoint_to_line",
+          select: st_line_from_multipoint(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}]
+      assert result.srid == 4326
+    end
+  end
+
+  describe "st_make_line" do
+    test "creates a linestring from two points" do
+      point1 = %Geo.Point{coordinates: {1, 2}, srid: 4326}
+      point2 = %Geo.Point{coordinates: {3, 4}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "point1", geom: point1})
+      Repo.insert(%LocationMulti{name: "point2", geom: point2})
+
+      query =
+        from(p1 in LocationMulti,
+          join: p2 in LocationMulti,
+          on: p1.name == "point1" and p2.name == "point2",
+          select: st_make_line(p1.geom, p2.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{1.0, 2.0}, {3.0, 4.0}]
+      assert result.srid == 4326
+    end
+
+    test "creates a linestring from two linestrings" do
+      line1 = %Geo.LineString{coordinates: [{1, 2}, {3, 4}], srid: 4326}
+      line2 = %Geo.LineString{coordinates: [{5, 6}, {7, 8}], srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "line1", geom: line1})
+      Repo.insert(%LocationMulti{name: "line2", geom: line2})
+
+      query =
+        from(l1 in LocationMulti,
+          join: l2 in LocationMulti,
+          on: l1.name == "line1" and l2.name == "line2",
+          select: st_make_line(l1.geom, l2.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}, {7.0, 8.0}]
+    end
+
+    test "creates a linestring from array aggregate of points" do
+      point1 = %Geo.Point{coordinates: {5, 5}, srid: 4326}
+      point2 = %Geo.Point{coordinates: {10, 10}, srid: 4326}
+      point3 = %Geo.Point{coordinates: {15, 15}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "agg_point1", geom: point1})
+      Repo.insert(%LocationMulti{name: "agg_point2", geom: point2})
+      Repo.insert(%LocationMulti{name: "agg_point3", geom: point3})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name in ["agg_point1", "agg_point2", "agg_point3"],
+          select: st_make_line(fragment("array_agg(? ORDER BY ?)", l.geom, l.name))
+        )
+
+      result = Repo.one(query)
+
+      assert %Geo.LineString{} = result
+      assert result.coordinates == [{5.0, 5.0}, {10.0, 10.0}, {15.0, 15.0}]
+    end
+  end
 end
