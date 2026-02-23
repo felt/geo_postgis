@@ -782,6 +782,72 @@ defmodule Geo.Ecto.Test do
     end
   end
 
+  describe "st_dump_geometry" do
+    test "atomic geometry is returned directly" do
+      point = %Geo.Point{
+        coordinates: {0.0, 0.0},
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "point", geom: point})
+
+      query =
+        from(location in LocationMulti,
+          where: location.name == "point",
+          select: st_dump_geometry(location.geom)
+        )
+
+      result = Repo.one(query)
+      assert result == point
+    end
+
+    test "breaks a multipolygon into its constituent polygons returning just the geometry" do
+      polygon1 = %Geo.Polygon{
+        coordinates: [[{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}]],
+        srid: 4326
+      }
+
+      polygon2 = %Geo.Polygon{
+        coordinates: [[{2.0, 2.0}, {2.0, 3.0}, {3.0, 3.0}, {3.0, 2.0}, {2.0, 2.0}]],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "polygon1", geom: polygon1})
+      Repo.insert(%LocationMulti{name: "polygon2", geom: polygon2})
+
+      dump_query =
+        from(
+          location in LocationMulti,
+          where: location.name in ["polygon1", "polygon2"],
+          select: %{geom: st_dump_geometry(st_collect(location.geom))}
+        )
+
+      query =
+        from(
+          polygons in subquery(dump_query),
+          select: %{
+            geom: polygons.geom,
+            # demonstrating use of the dumped geometry in the subquery
+            point_count: st_num_points(polygons.geom)
+          }
+        )
+
+      results = Repo.all(query)
+
+      assert length(results) == 2
+
+      Enum.each(results, fn %{geom: geom} ->
+        assert %Geo.Polygon{} = geom
+      end)
+
+      expected_polygons = MapSet.new([polygon1, polygon2])
+
+      actual_polygons = MapSet.new(Enum.map(results, fn %{geom: geom} -> geom end))
+
+      assert MapSet.equal?(expected_polygons, actual_polygons)
+    end
+  end
+
   describe "st_line_substring" do
     test "returns the first half of a line" do
       line = %Geo.LineString{
@@ -1003,6 +1069,1038 @@ defmodule Geo.Ecto.Test do
       assert Enum.count(result.coordinates, fn coord -> coord == overlapping_vertex end) == 2
 
       assert MapSet.new(polygon_coords) == MapSet.new(result.coordinates)
+    end
+  end
+
+  test "st_force2d" do
+    polygon = %Geo.PolygonZ{
+      coordinates: [
+        [{0, 0, 2}, {0, 5, 2}, {5, 0, 2}, {0, 0, 2}],
+        [{1, 1, 2}, {3, 1, 2}, {1, 3, 2}, {1, 1, 2}]
+      ],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "polygon", geom: polygon})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "polygon",
+        select: st_force2d(l.geom)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.Polygon{
+             coordinates: [[{0, 0}, {0, 5}, {5, 0}, {0, 0}], [{1, 1}, {3, 1}, {1, 3}, {1, 1}]],
+             srid: 4326
+           }
+  end
+
+  test "st_multi" do
+    polygon = %Geo.Polygon{
+      coordinates: [[{10.0, 30.0}, {30.0, 30.0}, {30.0, 10.0}, {10.0, 10.0}, {10.0, 30.0}]],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "polygon", geom: polygon})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "polygon",
+        select: st_multi(l.geom)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.MultiPolygon{
+             coordinates: [
+               [[{10.0, 30.0}, {30.0, 30.0}, {30.0, 10.0}, {10.0, 10.0}, {10.0, 30.0}]]
+             ],
+             srid: 4326
+           }
+  end
+
+  test "st_geometric_median" do
+    multi_point = %Geo.MultiPoint{
+      coordinates: [{10.0, 10.0}, {10.0, 40.0}, {40.0, 10.0}, {190.0, 190.0}],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "multi_point",
+        select: st_geometric_median(l.geom)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.Point{
+             coordinates: {25.01778421249728, 25.01778421249728},
+             srid: 4326,
+             properties: %{}
+           }
+  end
+
+  test "st_mem_size" do
+    multi_point = %Geo.MultiPoint{
+      coordinates: [{10.0, 10.0}, {10.0, 40.0}, {40.0, 10.0}, {190.0, 190.0}],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "multi_point",
+        select: st_mem_size(l.geom)
+      )
+
+    result = Repo.one(query)
+
+    assert result == 128
+  end
+
+  test "st_convex_hull" do
+    multi_line = %Geo.MultiLineString{
+      coordinates: [[{100.0, 190.0}, {10.0, 8.0}], [{150.0, 10.0}, {20.0, 30.0}]],
+      srid: 4326
+    }
+
+    multi_point = %Geo.MultiPoint{
+      coordinates: [{50.0, 5.0}, {150.0, 30.0}, {50.0, 10.0}, {10.0, 10.0}],
+      srid: 4326,
+      properties: %{}
+    }
+
+    Repo.insert(%LocationMulti{name: "multi_line", geom: multi_line})
+    Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name in ["multi_line", "multi_point"],
+        select: st_convex_hull(st_collect(l.geom))
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.Polygon{
+             coordinates: [
+               [
+                 {50.0, 5.0},
+                 {10.0, 8.0},
+                 {10.0, 10.0},
+                 {100.0, 190.0},
+                 {150.0, 30.0},
+                 {150.0, 10.0},
+                 {50.0, 5.0}
+               ]
+             ],
+             srid: 4326,
+             properties: %{}
+           }
+  end
+
+  describe "st_concave_hull" do
+    test "Concave Hull of a MultiPoint" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [
+          {10.0, 72.0},
+          {53.0, 76.0},
+          {56.0, 66.0},
+          {63.0, 58.0},
+          {71.0, 51.0},
+          {81.0, 48.0},
+          {91.0, 46.0},
+          {101.0, 45.0},
+          {111.0, 46.0},
+          {121.0, 47.0},
+          {131.0, 50.0},
+          {140.0, 55.0},
+          {145.0, 64.0},
+          {144.0, 74.0},
+          {135.0, 80.0},
+          {125.0, 83.0},
+          {115.0, 85.0},
+          {105.0, 87.0},
+          {95.0, 89.0},
+          {85.0, 91.0},
+          {75.0, 93.0},
+          {65.0, 95.0},
+          {55.0, 98.0},
+          {45.0, 102.0},
+          {37.0, 107.0},
+          {29.0, 114.0},
+          {22.0, 122.0},
+          {19.0, 132.0},
+          {18.0, 142.0},
+          {21.0, 151.0},
+          {27.0, 160.0},
+          {35.0, 167.0},
+          {44.0, 172.0},
+          {54.0, 175.0},
+          {64.0, 178.0},
+          {74.0, 180.0},
+          {84.0, 181.0},
+          {94.0, 181.0},
+          {104.0, 181.0},
+          {114.0, 181.0},
+          {124.0, 181.0},
+          {134.0, 179.0},
+          {144.0, 177.0},
+          {153.0, 173.0},
+          {162.0, 168.0},
+          {171.0, 162.0},
+          {177.0, 154.0},
+          {182.0, 145.0},
+          {184.0, 135.0},
+          {139.0, 132.0},
+          {136.0, 142.0},
+          {128.0, 149.0},
+          {119.0, 153.0},
+          {109.0, 155.0},
+          {99.0, 155.0},
+          {89.0, 155.0},
+          {79.0, 153.0},
+          {69.0, 150.0},
+          {61.0, 144.0},
+          {63.0, 134.0},
+          {72.0, 128.0},
+          {82.0, 125.0},
+          {92.0, 123.0},
+          {102.0, 121.0},
+          {112.0, 119.0},
+          {122.0, 118.0},
+          {132.0, 116.0},
+          {142.0, 113.0},
+          {151.0, 110.0},
+          {161.0, 106.0},
+          {170.0, 102.0},
+          {178.0, 96.0},
+          {185.0, 88.0},
+          {189.0, 78.0},
+          {190.0, 68.0},
+          {189.0, 58.0},
+          {185.0, 49.0},
+          {179.0, 41.0},
+          {171.0, 34.0},
+          {162.0, 29.0},
+          {153.0, 25.0},
+          {143.0, 23.0},
+          {133.0, 21.0},
+          {123.0, 19.0},
+          {113.0, 19.0},
+          {102.0, 19.0},
+          {92.0, 19.0},
+          {82.0, 19.0},
+          {72.0, 21.0},
+          {62.0, 22.0},
+          {52.0, 25.0},
+          {43.0, 29.0},
+          {33.0, 34.0},
+          {25.0, 41.0},
+          {19.0, 49.0},
+          {14.0, 58.0},
+          {21.0, 73.0},
+          {31.0, 74.0},
+          {42.0, 74.0},
+          {173.0, 134.0},
+          {161.0, 134.0},
+          {150.0, 133.0},
+          {97.0, 104.0},
+          {52.0, 117.0},
+          {157.0, 156.0},
+          {94.0, 171.0},
+          {112.0, 106.0},
+          {169.0, 73.0},
+          {58.0, 165.0},
+          {149.0, 40.0},
+          {70.0, 33.0},
+          {147.0, 157.0},
+          {48.0, 153.0},
+          {140.0, 96.0},
+          {47.0, 129.0},
+          {173.0, 55.0},
+          {144.0, 86.0},
+          {159.0, 67.0},
+          {150.0, 146.0},
+          {38.0, 136.0},
+          {111.0, 170.0},
+          {124.0, 94.0},
+          {26.0, 59.0},
+          {60.0, 41.0},
+          {71.0, 162.0},
+          {41.0, 64.0},
+          {88.0, 110.0},
+          {122.0, 34.0},
+          {151.0, 97.0},
+          {157.0, 56.0},
+          {39.0, 146.0},
+          {88.0, 33.0},
+          {159.0, 45.0},
+          {47.0, 56.0},
+          {138.0, 40.0},
+          {129.0, 165.0},
+          {33.0, 48.0},
+          {106.0, 31.0},
+          {169.0, 147.0},
+          {37.0, 122.0},
+          {71.0, 109.0},
+          {163.0, 89.0},
+          {37.0, 156.0},
+          {82.0, 170.0},
+          {180.0, 72.0},
+          {29.0, 142.0},
+          {46.0, 41.0},
+          {59.0, 155.0},
+          {124.0, 106.0},
+          {157.0, 80.0},
+          {175.0, 82.0},
+          {56.0, 50.0},
+          {62.0, 116.0},
+          {113.0, 95.0},
+          {144.0, 167.0}
+        ],
+        srid: 4326,
+        properties: %{}
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_concave_hull(l.geom, 0.1)
+        )
+
+      result = Repo.one(query)
+
+      assert result == %Geo.Polygon{
+               coordinates: [
+                 [
+                   {21.0, 151.0},
+                   {27.0, 160.0},
+                   {35.0, 167.0},
+                   {44.0, 172.0},
+                   {54.0, 175.0},
+                   {64.0, 178.0},
+                   {74.0, 180.0},
+                   {84.0, 181.0},
+                   {94.0, 181.0},
+                   {104.0, 181.0},
+                   {114.0, 181.0},
+                   {124.0, 181.0},
+                   {134.0, 179.0},
+                   {144.0, 177.0},
+                   {153.0, 173.0},
+                   {162.0, 168.0},
+                   {171.0, 162.0},
+                   {177.0, 154.0},
+                   {182.0, 145.0},
+                   {184.0, 135.0},
+                   {173.0, 134.0},
+                   {161.0, 134.0},
+                   {150.0, 133.0},
+                   {139.0, 132.0},
+                   {136.0, 142.0},
+                   {128.0, 149.0},
+                   {119.0, 153.0},
+                   {109.0, 155.0},
+                   {99.0, 155.0},
+                   {89.0, 155.0},
+                   {79.0, 153.0},
+                   {69.0, 150.0},
+                   {61.0, 144.0},
+                   {63.0, 134.0},
+                   {72.0, 128.0},
+                   {82.0, 125.0},
+                   {92.0, 123.0},
+                   {102.0, 121.0},
+                   {112.0, 119.0},
+                   {122.0, 118.0},
+                   {132.0, 116.0},
+                   {142.0, 113.0},
+                   {151.0, 110.0},
+                   {161.0, 106.0},
+                   {170.0, 102.0},
+                   {178.0, 96.0},
+                   {185.0, 88.0},
+                   {189.0, 78.0},
+                   {190.0, 68.0},
+                   {189.0, 58.0},
+                   {185.0, 49.0},
+                   {179.0, 41.0},
+                   {171.0, 34.0},
+                   {162.0, 29.0},
+                   {153.0, 25.0},
+                   {143.0, 23.0},
+                   {133.0, 21.0},
+                   {123.0, 19.0},
+                   {113.0, 19.0},
+                   {102.0, 19.0},
+                   {92.0, 19.0},
+                   {82.0, 19.0},
+                   {72.0, 21.0},
+                   {62.0, 22.0},
+                   {52.0, 25.0},
+                   {43.0, 29.0},
+                   {33.0, 34.0},
+                   {25.0, 41.0},
+                   {19.0, 49.0},
+                   {14.0, 58.0},
+                   {10.0, 72.0},
+                   {21.0, 73.0},
+                   {31.0, 74.0},
+                   {42.0, 74.0},
+                   {53.0, 76.0},
+                   {56.0, 66.0},
+                   {63.0, 58.0},
+                   {71.0, 51.0},
+                   {81.0, 48.0},
+                   {91.0, 46.0},
+                   {101.0, 45.0},
+                   {111.0, 46.0},
+                   {121.0, 47.0},
+                   {131.0, 50.0},
+                   {140.0, 55.0},
+                   {145.0, 64.0},
+                   {144.0, 74.0},
+                   {135.0, 80.0},
+                   {125.0, 83.0},
+                   {115.0, 85.0},
+                   {105.0, 87.0},
+                   {95.0, 89.0},
+                   {85.0, 91.0},
+                   {75.0, 93.0},
+                   {65.0, 95.0},
+                   {55.0, 98.0},
+                   {45.0, 102.0},
+                   {37.0, 107.0},
+                   {29.0, 114.0},
+                   {22.0, 122.0},
+                   {19.0, 132.0},
+                   {18.0, 142.0},
+                   {21.0, 151.0}
+                 ]
+               ],
+               srid: 4326,
+               properties: %{}
+             }
+    end
+
+    test "Concave Hull of a MultiPoint, allowing holes" do
+      multi_point = %Geo.MultiPoint{
+        coordinates: [
+          {132.0, 64.0},
+          {114.0, 64.0},
+          {99.0, 64.0},
+          {81.0, 64.0},
+          {63.0, 64.0},
+          {57.0, 49.0},
+          {52.0, 36.0},
+          {46.0, 20.0},
+          {37.0, 20.0},
+          {26.0, 20.0},
+          {32.0, 36.0},
+          {39.0, 55.0},
+          {43.0, 69.0},
+          {50.0, 84.0},
+          {57.0, 100.0},
+          {63.0, 118.0},
+          {68.0, 133.0},
+          {74.0, 149.0},
+          {81.0, 164.0},
+          {88.0, 180.0},
+          {101.0, 180.0},
+          {112.0, 180.0},
+          {119.0, 164.0},
+          {126.0, 149.0},
+          {132.0, 131.0},
+          {139.0, 113.0},
+          {143.0, 100.0},
+          {150.0, 84.0},
+          {157.0, 69.0},
+          {163.0, 51.0},
+          {168.0, 36.0},
+          {174.0, 20.0},
+          {163.0, 20.0},
+          {150.0, 20.0},
+          {143.0, 36.0},
+          {139.0, 49.0},
+          {132.0, 64.0},
+          {99.0, 151.0},
+          {92.0, 138.0},
+          {88.0, 124.0},
+          {81.0, 109.0},
+          {74.0, 93.0},
+          {70.0, 82.0},
+          {83.0, 82.0},
+          {99.0, 82.0},
+          {112.0, 82.0},
+          {126.0, 82.0},
+          {121.0, 96.0},
+          {114.0, 109.0},
+          {110.0, 122.0},
+          {103.0, 138.0},
+          {99.0, 151.0},
+          {34.0, 27.0},
+          {43.0, 31.0},
+          {48.0, 44.0},
+          {46.0, 58.0},
+          {52.0, 73.0},
+          {63.0, 73.0},
+          {61.0, 84.0},
+          {72.0, 71.0},
+          {90.0, 69.0},
+          {101.0, 76.0},
+          {123.0, 71.0},
+          {141.0, 62.0},
+          {166.0, 27.0},
+          {150.0, 33.0},
+          {159.0, 36.0},
+          {146.0, 44.0},
+          {154.0, 53.0},
+          {152.0, 62.0},
+          {146.0, 73.0},
+          {134.0, 76.0},
+          {143.0, 82.0},
+          {141.0, 91.0},
+          {130.0, 98.0},
+          {126.0, 104.0},
+          {132.0, 113.0},
+          {128.0, 127.0},
+          {117.0, 122.0},
+          {112.0, 133.0},
+          {119.0, 144.0},
+          {108.0, 147.0},
+          {119.0, 153.0},
+          {110.0, 171.0},
+          {103.0, 164.0},
+          {92.0, 171.0},
+          {86.0, 160.0},
+          {88.0, 142.0},
+          {79.0, 140.0},
+          {72.0, 124.0},
+          {83.0, 131.0},
+          {79.0, 118.0},
+          {68.0, 113.0},
+          {63.0, 102.0},
+          {68.0, 93.0},
+          {35.0, 45.0}
+        ],
+        srid: 4326,
+        properties: %{}
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_point", geom: multi_point})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_point",
+          select: st_concave_hull(l.geom, 0.15, true)
+        )
+
+      result = Repo.one(query)
+
+      assert result == %Geo.Polygon{
+               coordinates: [
+                 [
+                   {88.0, 180.0},
+                   {101.0, 180.0},
+                   {112.0, 180.0},
+                   {119.0, 164.0},
+                   {126.0, 149.0},
+                   {132.0, 131.0},
+                   {139.0, 113.0},
+                   {143.0, 100.0},
+                   {150.0, 84.0},
+                   {157.0, 69.0},
+                   {163.0, 51.0},
+                   {168.0, 36.0},
+                   {174.0, 20.0},
+                   {163.0, 20.0},
+                   {150.0, 20.0},
+                   {143.0, 36.0},
+                   {139.0, 49.0},
+                   {132.0, 64.0},
+                   {114.0, 64.0},
+                   {99.0, 64.0},
+                   {81.0, 64.0},
+                   {63.0, 64.0},
+                   {57.0, 49.0},
+                   {52.0, 36.0},
+                   {46.0, 20.0},
+                   {37.0, 20.0},
+                   {26.0, 20.0},
+                   {32.0, 36.0},
+                   {35.0, 45.0},
+                   {39.0, 55.0},
+                   {43.0, 69.0},
+                   {50.0, 84.0},
+                   {57.0, 100.0},
+                   {63.0, 118.0},
+                   {68.0, 133.0},
+                   {74.0, 149.0},
+                   {81.0, 164.0},
+                   {88.0, 180.0}
+                 ],
+                 [
+                   {92.0, 138.0},
+                   {88.0, 124.0},
+                   {81.0, 109.0},
+                   {74.0, 93.0},
+                   {83.0, 82.0},
+                   {99.0, 82.0},
+                   {112.0, 82.0},
+                   {121.0, 96.0},
+                   {114.0, 109.0},
+                   {110.0, 122.0},
+                   {103.0, 138.0},
+                   {92.0, 138.0}
+                 ]
+               ],
+               srid: 4326,
+               properties: %{}
+             }
+    end
+  end
+
+  describe "count points" do
+    test "st_num_point" do
+      line_string = %Geo.LineString{
+        coordinates: [{77.29, 29.07}, {77.42, 29.26}, {77.27, 29.31}, {77.29, 29.07}],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "line_string", geom: line_string})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "line_string",
+          select: st_num_points(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == 4
+    end
+
+    test "st_npoints" do
+      line_string_3d = %Geo.LineStringZ{
+        coordinates: [
+          {77.29, 29.07, 1.0},
+          {77.42, 29.26, 0.0},
+          {77.27, 29.31, -1.0},
+          {77.29, 29.07, 3.0}
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "line_string_3d", geom: line_string_3d})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "line_string_3d",
+          select: st_n_points(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == 4
+    end
+  end
+
+  test "st_expand" do
+    line_string = %Geo.LineString{
+      coordinates: [
+        {2_312_980.0, 110_676.0},
+        {2_312_923.0, 110_701.0},
+        {2_312_892.0, 110_714.0}
+      ],
+      srid: 4326,
+      properties: %{}
+    }
+
+    Repo.insert(%LocationMulti{name: "line_string", geom: line_string})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "line_string",
+        select: st_expand(l.geom, 10)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.Polygon{
+             coordinates: [
+               [
+                 {2_312_882.0, 110_666.0},
+                 {2_312_882.0, 110_724.0},
+                 {2_312_990.0, 110_724.0},
+                 {2_312_990.0, 110_666.0},
+                 {2_312_882.0, 110_666.0}
+               ]
+             ],
+             srid: 4326,
+             properties: %{}
+           }
+  end
+
+  describe "st_collection_extract" do
+    test "Extract highest-dimension type" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0.0, 0.0}, srid: 4326},
+          %Geo.LineString{
+            coordinates: [{1.0, 1.0}, {2.0, 2.0}],
+            srid: 4326
+          }
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_collection_extract(l.geom)
+        )
+
+      result = Repo.one(query)
+
+      assert result == %Geo.MultiLineString{
+               coordinates: [[{1.0, 1.0}, {2.0, 2.0}]],
+               srid: 4326,
+               properties: %{}
+             }
+    end
+
+    test "Extract points (type 1 == POINT)" do
+      collection = %Geo.GeometryCollection{
+        geometries: [
+          %Geo.Point{coordinates: {0.0, 0.0}, srid: 4326},
+          %Geo.LineString{
+            coordinates: [{1.0, 1.0}, {2.0, 2.0}],
+            srid: 4326
+          }
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "collection", geom: collection})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "collection",
+          select: st_collection_extract(l.geom, 1)
+        )
+
+      result = Repo.one(query)
+
+      assert result == %Geo.MultiPoint{
+               coordinates: [{0.0, 0.0}],
+               srid: 4326,
+               properties: %{}
+             }
+    end
+
+    test "st_simplify_preserve_topology" do
+      multi_polygon = %Geo.MultiPolygon{
+        coordinates: [
+          [
+            [
+              {90.0, 110.0},
+              {80.0, 180.0},
+              {50.0, 160.0},
+              {10.0, 170.0},
+              {10.0, 140.0},
+              {20.0, 110.0},
+              {90.0, 110.0}
+            ]
+          ],
+          [
+            [
+              {40.0, 80.0},
+              {100.0, 100.0},
+              {120.0, 160.0},
+              {170.0, 180.0},
+              {190.0, 70.0},
+              {140.0, 10.0},
+              {110.0, 40.0},
+              {60.0, 40.0},
+              {40.0, 80.0}
+            ],
+            [
+              {180.0, 70.0},
+              {170.0, 110.0},
+              {142.5, 128.5},
+              {128.5, 77.5},
+              {90.0, 60.0},
+              {180.0, 70.0}
+            ]
+          ]
+        ],
+        srid: 4326
+      }
+
+      Repo.insert(%LocationMulti{name: "multi_polygon", geom: multi_polygon})
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "multi_polygon",
+          select: st_simplify_preserve_topology(l.geom, 40)
+        )
+
+      result = Repo.one(query)
+
+      assert result == %Geo.MultiPolygon{
+               coordinates: [
+                 [
+                   [
+                     {90.0, 110.0},
+                     {80.0, 180.0},
+                     {10.0, 170.0},
+                     {20.0, 110.0},
+                     {90.0, 110.0}
+                   ]
+                 ],
+                 [
+                   [
+                     {40.0, 80.0},
+                     {100.0, 100.0},
+                     {170.0, 180.0},
+                     {190.0, 70.0},
+                     {140.0, 10.0},
+                     {40.0, 80.0}
+                   ],
+                   [{180.0, 70.0}, {142.5, 128.5}, {90.0, 60.0}, {180.0, 70.0}]
+                 ]
+               ],
+               srid: 4326,
+               properties: %{}
+             }
+    end
+  end
+
+  test "st_reduce_precision" do
+    polygon = %Geo.Polygon{
+      coordinates: [
+        [
+          {10.0, 10.0},
+          {60.0, 60.1},
+          {70.0, 30.0},
+          {40.0, 40.0},
+          {50.0, 10.0},
+          {10.0, 10.0}
+        ]
+      ],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "polygon", geom: polygon})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "polygon",
+        select: st_reduce_precision(l.geom, 10)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.MultiPolygon{
+             coordinates: [
+               [[{40.0, 40.0}, {50.0, 10.0}, {10.0, 10.0}, {40.0, 40.0}]],
+               [[{60.0, 60.0}, {70.0, 30.0}, {40.0, 40.0}, {60.0, 60.0}]]
+             ],
+             srid: 4326,
+             properties: %{}
+           }
+  end
+
+  test "st_snap_to_grid" do
+    line_string = %Geo.LineString{
+      coordinates: [
+        {1.1115678, 2.123},
+        {4.111111, 3.2374897},
+        {4.11112, 3.23748667}
+      ],
+      srid: 4326
+    }
+
+    Repo.insert(%LocationMulti{name: "line_string", geom: line_string})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "line_string",
+        select: st_snap_to_grid(l.geom, 0.001)
+      )
+
+    result = Repo.one(query)
+
+    assert result == %Geo.LineString{
+             coordinates: [{1.112, 2.123}, {4.111, 3.237}],
+             srid: 4326,
+             properties: %{}
+           }
+  end
+
+  test "st_as_geojson" do
+    point = %Geo.Point{coordinates: {1.0, 1.0}, srid: 4326}
+
+    Repo.insert(%LocationMulti{name: "first point", geom: point})
+
+    query =
+      from(l in LocationMulti,
+        where: l.name == "first point",
+        select: st_as_geojson(l)
+      )
+
+    result = Repo.one(query)
+
+    assert result ==
+             "{\"type\": \"Feature\", \"geometry\": {\"type\":\"Point\",\"coordinates\":[1,1]}, \"properties\": {\"id\": 1, \"name\": \"first point\"}}"
+  end
+
+  describe "st_cluster_k_means" do
+    test "divide a group of points into 3 clusters" do
+      [
+        {10.0, 72.0},
+        {53.0, 76.0},
+        {56.0, 66.0},
+        {63.0, 58.0},
+        {121.0, 47.0},
+        {131.0, 50.0},
+        {140.0, 55.0},
+        {145.0, 64.0},
+        {144.0, 74.0},
+        {135.0, 80.0},
+        {75.0, 93.0},
+        {65.0, 95.0},
+        {55.0, 98.0},
+        {45.0, 102.0},
+        {37.0, 107.0},
+        {29.0, 114.0},
+        {22.0, 122.0},
+        {54.0, 175.0},
+        {64.0, 178.0},
+        {74.0, 180.0},
+        {84.0, 181.0},
+        {94.0, 181.0}
+      ]
+      |> Enum.each(fn point ->
+        Repo.insert(%LocationMulti{
+          name: "cluster_point",
+          geom: %Geo.Point{coordinates: point, srid: 4326}
+        })
+      end)
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "cluster_point",
+          select: %{
+            cid: st_cluster_k_means(l.geom, 3) |> over(),
+            id: l.id
+          }
+        )
+
+      result = Repo.all(query)
+
+      assert result == [
+               %{id: 1, cid: 2},
+               %{id: 2, cid: 2},
+               %{id: 3, cid: 2},
+               %{id: 4, cid: 2},
+               %{id: 5, cid: 0},
+               %{id: 6, cid: 0},
+               %{id: 7, cid: 0},
+               %{id: 8, cid: 0},
+               %{id: 9, cid: 0},
+               %{id: 10, cid: 0},
+               %{id: 11, cid: 2},
+               %{id: 12, cid: 2},
+               %{id: 13, cid: 2},
+               %{id: 14, cid: 2},
+               %{id: 15, cid: 2},
+               %{id: 16, cid: 2},
+               %{id: 17, cid: 2},
+               %{id: 18, cid: 1},
+               %{id: 19, cid: 1},
+               %{id: 20, cid: 1},
+               %{id: 21, cid: 1},
+               %{id: 22, cid: 1}
+             ]
+    end
+
+    test "divide a group of points into atleast 3 clusters with a max radius" do
+      [
+        {10.0, 72.0},
+        {53.0, 76.0},
+        {56.0, 66.0},
+        {63.0, 58.0},
+        {121.0, 47.0},
+        {131.0, 50.0},
+        {140.0, 55.0},
+        {145.0, 64.0},
+        {144.0, 74.0},
+        {135.0, 80.0},
+        {75.0, 93.0},
+        {65.0, 95.0},
+        {55.0, 98.0},
+        {45.0, 102.0},
+        {37.0, 107.0},
+        {29.0, 114.0},
+        {22.0, 122.0},
+        {54.0, 175.0},
+        {64.0, 178.0},
+        {74.0, 180.0},
+        {84.0, 181.0},
+        {94.0, 181.0}
+      ]
+      |> Enum.each(fn point ->
+        Repo.insert(%LocationMulti{
+          name: "cluster_point",
+          geom: %Geo.Point{coordinates: point, srid: 4326}
+        })
+      end)
+
+      query =
+        from(l in LocationMulti,
+          where: l.name == "cluster_point",
+          select: %{
+            cid: st_cluster_k_means(l.geom, 3, 20) |> over(),
+            id: l.id
+          }
+        )
+
+      result = Repo.all(query)
+
+      assert result == [
+               %{id: 1, cid: 7},
+               %{id: 2, cid: 2},
+               %{id: 3, cid: 2},
+               %{id: 4, cid: 2},
+               %{id: 5, cid: 3},
+               %{id: 6, cid: 3},
+               %{id: 7, cid: 3},
+               %{id: 8, cid: 0},
+               %{id: 9, cid: 0},
+               %{id: 10, cid: 0},
+               %{id: 11, cid: 6},
+               %{id: 12, cid: 6},
+               %{id: 13, cid: 6},
+               %{id: 14, cid: 5},
+               %{id: 15, cid: 5},
+               %{id: 16, cid: 5},
+               %{id: 17, cid: 5},
+               %{id: 18, cid: 4},
+               %{id: 19, cid: 4},
+               %{id: 20, cid: 1},
+               %{id: 21, cid: 1},
+               %{id: 22, cid: 1}
+             ]
     end
   end
 end

@@ -139,6 +139,10 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_PointOnSurface(?)", unquote(geometry))
   end
 
+  defmacro st_geometric_median(geometry) do
+    quote do: fragment("ST_GeometricMedian(?)", unquote(geometry))
+  end
+
   defmacro st_boundary(geometry) do
     quote do: fragment("ST_Boundary(?)", unquote(geometry))
   end
@@ -151,8 +155,22 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_Buffer(?, ?, ?)", unquote(geometry), unquote(double), unquote(integer))
   end
 
+  defmacro st_expand(geometry, units_to_expand) do
+    quote do: fragment("ST_Expand(?, ?)", unquote(geometry), unquote(units_to_expand))
+  end
+
   defmacro st_convex_hull(geometry) do
     quote do: fragment("ST_ConvexHull(?)", unquote(geometry))
+  end
+
+  defmacro st_concave_hull(geometry, pctconvex, allow_holes \\ false) do
+    quote do:
+            fragment(
+              "ST_ConcaveHull(?, ?, ?)",
+              unquote(geometry),
+              unquote(pctconvex),
+              unquote(allow_holes)
+            )
   end
 
   defmacro st_intersection(geometryA, geometryB) do
@@ -179,6 +197,14 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_Collect(?,?)", unquote(geometryA), unquote(geometryB))
   end
 
+  defmacro st_collection_extract(geometry) do
+    quote do: fragment("ST_CollectionExtract(?)", unquote(geometry))
+  end
+
+  defmacro st_collection_extract(geometry, type) do
+    quote do: fragment("ST_CollectionExtract(?, ?)", unquote(geometry), unquote(type))
+  end
+
   defmacro st_union(geometryList) do
     quote do: fragment("ST_Union(?)", unquote(geometryList))
   end
@@ -197,6 +223,10 @@ defmodule Geo.PostGIS do
 
   defmacro st_as_binary(geometry) do
     quote do: fragment("ST_AsBinary(?)", unquote(geometry))
+  end
+
+  defmacro st_as_geojson(table) do
+    quote do: fragment("ST_AsGeoJSON(?.*)", unquote(table))
   end
 
   defmacro st_srid(geometry) do
@@ -249,6 +279,10 @@ defmodule Geo.PostGIS do
 
   defmacro st_num_points(geometry) do
     quote do: fragment("ST_NumPoints(?)", unquote(geometry))
+  end
+
+  defmacro st_n_points(geometry) do
+    quote do: fragment("ST_NPoints(?)", unquote(geometry))
   end
 
   defmacro st_point_n(geometry, int) do
@@ -433,6 +467,14 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_MakeValid(?, ?)", unquote(geometry), unquote(params))
   end
 
+  defmacro st_force2d(geometry) do
+    quote do: fragment("ST_Force2D(?)", unquote(geometry))
+  end
+
+  defmacro st_multi(geometry) do
+    quote do: fragment("ST_Multi(?)", unquote(geometry))
+  end
+
   defmacro st_make_point(x, y) do
     quote do: fragment("ST_MakePoint(?, ?)", unquote(x), unquote(y))
   end
@@ -511,5 +553,40 @@ defmodule Geo.PostGIS do
 
   defmacro st_dump(geometry) do
     quote do: fragment("ST_Dump(?)", unquote(geometry))
+  end
+
+  defmacro st_dump_geometry(geometry) do
+    quote do: fragment("(ST_Dump(?)).geom", unquote(geometry))
+  end
+
+  defmacro st_mem_size(geometry) do
+    quote do: fragment("ST_MemSize(?)", unquote(geometry))
+  end
+
+  defmacro st_simplify_preserve_topology(geometryA, geometryB) do
+    quote do:
+            fragment("ST_SimplifyPreserveTopology(?, ?)", unquote(geometryA), unquote(geometryB))
+  end
+
+  defmacro st_reduce_precision(geometry, grid_size) do
+    quote do: fragment("ST_ReducePrecision(?, ?)", unquote(geometry), unquote(grid_size))
+  end
+
+  defmacro st_snap_to_grid(geometry, grid_size) do
+    quote do: fragment("ST_SnapToGrid(?, ?)", unquote(geometry), unquote(grid_size))
+  end
+
+  defmacro st_cluster_k_means(geometry, number_of_clusters) do
+    quote do: fragment("ST_ClusterKMeans(?, ?)", unquote(geometry), unquote(number_of_clusters))
+  end
+
+  defmacro st_cluster_k_means(geometry, number_of_clusters, max_radius) do
+    quote do:
+            fragment(
+              "ST_ClusterKMeans(?, ?, ?)",
+              unquote(geometry),
+              unquote(number_of_clusters),
+              unquote(max_radius)
+            )
   end
 end
