@@ -842,7 +842,7 @@ defmodule Geo.Ecto.Test do
 
       expected_polygons = MapSet.new([polygon1, polygon2])
 
-      actual_polygons = MapSet.new(Enum.map(results, fn %{geom: geom} -> geom end))
+      actual_polygons = MapSet.new(results, fn %{geom: geom} -> geom end)
 
       assert MapSet.equal?(expected_polygons, actual_polygons)
     end
