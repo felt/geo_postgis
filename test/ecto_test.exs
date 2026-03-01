@@ -1687,7 +1687,7 @@ defmodule Geo.Ecto.Test do
       assert result == 4
     end
 
-    test "st_npoints" do
+    test "st_n_points" do
       line_string_3d = %Geo.LineStringZ{
         coordinates: [
           {77.29, 29.07, 1.0},
