@@ -564,8 +564,9 @@ defmodule Geo.PostGIS do
   end
 
   defmacro st_simplify_preserve_topology(geometryA, geometryB) do
-    quote do:
-            fragment("ST_SimplifyPreserveTopology(?, ?)", unquote(geometryA), unquote(geometryB))
+    quote do
+      fragment("ST_SimplifyPreserveTopology(?, ?)", unquote(geometryA), unquote(geometryB))
+    end
   end
 
   defmacro st_reduce_precision(geometry, grid_size) do
