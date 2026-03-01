@@ -467,7 +467,7 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_MakeValid(?, ?)", unquote(geometry), unquote(params))
   end
 
-  defmacro st_force2d(geometry) do
+  defmacro st_force_2d(geometry) do
     quote do: fragment("ST_Force2D(?)", unquote(geometry))
   end
 
