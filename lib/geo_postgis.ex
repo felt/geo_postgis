@@ -551,10 +551,18 @@ defmodule Geo.PostGIS do
             )
   end
 
+  @doc """
+  A set-returning function (SRF) that extracts the components of a geometry. It returns a set of
+  geometry_dump rows, each containing a geometry (geom field) and an array of integers (path field).
+  """
   defmacro st_dump(geometry) do
     quote do: fragment("ST_Dump(?)", unquote(geometry))
   end
 
+  @doc """
+  An alternative form of "st_dump" that allows directly extracting out just the dumped geometry for
+  easier use with sub-queries and within nested calls involving other PostGIS macros.
+  """
   defmacro st_dump_geometry(geometry) do
     quote do: fragment("(ST_Dump(?)).geom", unquote(geometry))
   end
