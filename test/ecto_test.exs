@@ -2034,7 +2034,7 @@ defmodule Geo.Ecto.Test do
              ]
     end
 
-    test "divide a group of points into atleast 3 clusters with a max radius" do
+    test "divide a group of points into at least 3 clusters with a max radius" do
       [
         {10.0, 72.0},
         {53.0, 76.0},
