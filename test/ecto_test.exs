@@ -1072,7 +1072,7 @@ defmodule Geo.Ecto.Test do
     end
   end
 
-  test "st_force2d" do
+  test "st_force_2d" do
     polygon = %Geo.PolygonZ{
       coordinates: [
         [{0, 0, 2}, {0, 5, 2}, {5, 0, 2}, {0, 0, 2}],
@@ -1086,7 +1086,7 @@ defmodule Geo.Ecto.Test do
     query =
       from(l in LocationMulti,
         where: l.name == "polygon",
-        select: st_force2d(l.geom)
+        select: st_force_2d(l.geom)
       )
 
     result = Repo.one(query)
