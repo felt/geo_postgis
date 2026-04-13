@@ -222,6 +222,58 @@ defmodule Geo.Ecto.Test do
              |> Enum.map(fn x -> x.name end)
   end
 
+  describe "st_dwithin/4 and st_dwithin_in_meters/4" do
+    test "st_dwithin/4 with geography operands and use_spheroid" do
+      here = %Geo.Point{coordinates: {30, -90}, srid: 4326}
+      there = %Geo.Point{coordinates: {30, -91}, srid: 4326}
+
+      Repo.insert(%Geographies{name: "here", geom: here})
+
+      within =
+        from(
+          g in Geographies,
+          where: g.name == "here",
+          select: st_dwithin(g.geom, ^there, 150_000, true)
+        )
+
+      assert Repo.one(within) == true
+
+      not_within =
+        from(
+          g in Geographies,
+          where: g.name == "here",
+          select: st_dwithin(g.geom, ^there, 100_000, true)
+        )
+
+      assert Repo.one(not_within) == false
+    end
+
+    test "st_dwithin_in_meters/4 casts to geography and passes use_spheroid" do
+      here = %Geo.Point{coordinates: {30, -90}, srid: 4326}
+      there = %Geo.Point{coordinates: {30, -91}, srid: 4326}
+
+      Repo.insert(%LocationMulti{name: "dwithin_a", geom: here})
+
+      within =
+        from(
+          l in LocationMulti,
+          where: l.name == "dwithin_a",
+          select: st_dwithin_in_meters(l.geom, ^there, 150_000, false)
+        )
+
+      assert Repo.one(within) == true
+
+      not_within =
+        from(
+          l in LocationMulti,
+          where: l.name == "dwithin_a",
+          select: st_dwithin_in_meters(l.geom, ^there, 100_000, false)
+        )
+
+      assert Repo.one(not_within) == false
+    end
+  end
+
   test "insert multiple geometry types" do
     geom1 = %Geo.Point{coordinates: {30, -90}, srid: 4326}
     geom2 = %Geo.LineString{coordinates: [{30, -90}, {30, -91}], srid: 4326}

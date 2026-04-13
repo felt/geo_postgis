@@ -57,6 +57,22 @@ defmodule Geo.PostGIS do
   end
 
   @doc """
+  Geography form of `ST_DWithin/4`: distance is in meters; `use_spheroid` is forwarded to PostGIS.
+
+  See [ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
+  """
+  defmacro st_dwithin(geometryA, geometryB, float, use_spheroid) do
+    quote do:
+            fragment(
+              "ST_DWithin(?,?,?,?)",
+              unquote(geometryA),
+              unquote(geometryB),
+              unquote(float),
+              unquote(use_spheroid)
+            )
+  end
+
+  @doc """
   Casts the 2 geometries given to geographies in order to check for distance in meters.
   """
   defmacro st_dwithin_in_meters(geometryA, geometryB, float) do
@@ -66,6 +82,22 @@ defmodule Geo.PostGIS do
               unquote(geometryA),
               unquote(geometryB),
               unquote(float)
+            )
+  end
+
+  @doc """
+  Like `st_dwithin_in_meters/3` but passes `use_spheroid` to PostGIS.
+
+  See [ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
+  """
+  defmacro st_dwithin_in_meters(geometryA, geometryB, float, use_spheroid) do
+    quote do:
+            fragment(
+              "ST_DWithin(?::geography, ?::geography, ?, ?)",
+              unquote(geometryA),
+              unquote(geometryB),
+              unquote(float),
+              unquote(use_spheroid)
             )
   end
 
