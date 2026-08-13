@@ -51,13 +51,23 @@ defmodule Geo.PostGIS do
     quote do: fragment("ST_Distance_Sphere(?,?)", unquote(geometryA), unquote(geometryB))
   end
 
+  @doc """
+  Wraps PostGIS `ST_DWithin/3`. Distance units follow the operand types: **geometry** arguments use
+  the spatial reference system's units; **geography** arguments use meters (PostGIS default
+  spheroid behavior applies; there is no `use_spheroid` argument on this overload).
+
+  See [ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
+  """
   defmacro st_dwithin(geometryA, geometryB, float) do
     quote do:
             fragment("ST_DWithin(?,?,?)", unquote(geometryA), unquote(geometryB), unquote(float))
   end
 
   @doc """
-  Geography form of `ST_DWithin/4`: distance is in meters; `use_spheroid` is forwarded to PostGIS.
+  Wraps PostGIS `ST_DWithin/4`: the SQL signature is for **geography** operands, distance in meters,
+  and `use_spheroid`. This macro does not cast; both expressions should already be geography (for
+  example a `geography` column). To measure in meters after casting WGS 84 **geometry** to
+  geography, use `st_dwithin_in_meters/4`.
 
   See [ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
   """
@@ -86,7 +96,8 @@ defmodule Geo.PostGIS do
   end
 
   @doc """
-  Like `st_dwithin_in_meters/3` but passes `use_spheroid` to PostGIS.
+  Like `st_dwithin_in_meters/3` but passes `use_spheroid` through to the same geography
+  `ST_DWithin/4` overload after casting both operands to `geography`.
 
   See [ST_DWithin](https://postgis.net/docs/ST_DWithin.html).
   """
