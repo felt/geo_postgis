@@ -53,7 +53,7 @@ defmodule GeoPostgis.Mixfile do
       main: "readme",
       source_url: @source_url,
       source_ref: "v#{@version}",
-      formatters: ["html"]
+      formatters: ["html", "markdown"]
     ]
   end
 end
